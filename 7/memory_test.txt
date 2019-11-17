@@ -1,0 +1,48 @@
+The task is to set an array of integers, with the size n = 2^k.
+
+(1) The first timing is for serial C code using "memset" function
+(2) The second timing is for data transfer from CPU to GPU
+(3) The third timing is for the parallel GPU kernel 
+(4) The fourth timing is for data transfer from GPU to CPU
+
+23
+CPU -> CPU :: time 0.0200s	bandwidth 1600.0 MB/s
+CPU -> GPU :: time 0.0235s	bandwidth 1363.9 MB/s
+    Kernel :: time 0.0005s	bandwidth 61.6 GB/s
+GPU -> CPU :: time 0.0206s	bandwidth 1553.3 MB/s
+
+24
+CPU -> CPU :: time 0.0400s	bandwidth 1600.0 MB/s
+CPU -> GPU :: time 0.0465s	bandwidth 1376.7 MB/s
+    Kernel :: time 0.0009s	bandwidth 69.9 GB/s
+GPU -> CPU :: time 0.0410s	bandwidth 1560.5 MB/s
+
+25
+CPU -> CPU :: time 0.0900s	bandwidth 1422.2 MB/s
+CPU -> GPU :: time 0.0926s	bandwidth 1382.2 MB/s
+    Kernel :: time 0.0017s	bandwidth 75.0 GB/s
+GPU -> CPU :: time 0.0816s	bandwidth 1569.0 MB/s
+
+26
+CPU -> CPU :: time 0.1800s	bandwidth 1422.2 MB/s
+CPU -> GPU :: time 0.1951s	bandwidth 1312.1 MB/s
+    Kernel :: time 0.0032s	bandwidth 77.4 GB/s
+GPU -> CPU :: time 0.1661s	bandwidth 1541.5 MB/s
+
+27
+CPU -> CPU :: time 0.3500s	bandwidth 1462.9 MB/s
+CPU -> GPU :: time 0.3692s	bandwidth 1386.7 MB/s
+    Kernel :: time 0.0063s	bandwidth 79.0 GB/s
+GPU -> CPU :: time 0.3352s	bandwidth 1527.2 MB/s
+
+The table shows:
+
+(1) the peak performance of writing to CPU main memory is 1600 MB/s,
+    which is close to the data transfer between GPU and CPU
+
+(2) the peak performance of writing to GPU global memory is about 79 GB/s,
+    which is about 50 times faster to CPU-GPU data movement.
+    
+    As the specification of NVIDIA GTX 285, the peak memory bandwidth 
+    can reach as high as 159 GB/s. From the forum of CUDA, 
+    this theoretical bandwidth is hard to reach in practice.

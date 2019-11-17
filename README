@@ -1,0 +1,36 @@
+simple_examples/README
+========================
+
+
+Subdirectories 
+---------------
+
+1/  vector_add.cu  -> vector addition
+
+2/  matrix_mul.cu  -> matrix multiplication 
+
+3/  moveArrays.cu 
+    CUDA, Supercomputing for the Masses: Part 1
+
+4/  incrementArray.cu
+    CUDA, Supercomputing for the Masses: Part 2
+
+
+5/  reverseArray_multiblock.cu
+    CUDA, Supercomputing for the Masses: Part 3
+    Error handling and global memory performance limitations
+
+6/ arrayReversal_multiblock_fast.cu
+   CUDA, Supercomputing for the Masses: Part 3
+   Error handling and global memory performance limitations
+
+
+7/  memset.cu -> Memory banswith test
+
+8/  simpleCUDA.cu
+    This simple code sample demonstrates how to perform a simple linear
+    algebra operation using CUDA, single precision axpy:
+    y[i] = alpha*x[i] + y[i] for x,y in R^N and a scalar alpha
+    http://mags.acm.org/queue/20080304/
+
+9/ atomic2.cu -> compute the index of first nonzero entry of an array
