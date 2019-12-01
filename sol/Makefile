@@ -7,12 +7,12 @@ NVCC = nvcc
 
 SRCCC =
 
-SRCCU = vector_add.cu
+SRCCU = min_plus_mult.cu
 
 ### NVCCFLAGS = -c -O2 --compiler-bindir /usr/bin//gcc-4.8
 NVCCFLAGS = -c -O2 -ccbin cuda-gcc
 
-EXE = vector_add
+EXE = min_plus_mult
 
 RM = rm -f
 
