@@ -164,9 +164,7 @@ void correctnessTests(int argc, char *argv[]) {
 		
 		cout << endl << "Matrix 2" << endl;
 		print(matrix2, matrixWidth);
-
 		
-
 
 		//load expected result
 		int* expected = (int*) malloc(sizeOfMatrix*sizeof(int));

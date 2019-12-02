@@ -124,20 +124,16 @@ int main(int argc, char *argv[])
 		for (int i=0;i<matrixSize*matrixSize;i++) {
                         myfile << matrix1[i];
 			myfile << " ";
-                }
-                myfile << "\n";
+        }
+        myfile << "\n";
 		for (int i=0;i<matrixSize*matrixSize;i++) {
-                        myfile << matrix3[i];
+            myfile << matrix3[i];
 			myfile << " ";
-                }
-                myfile << "\n";
-
-	    	myfile.close();
+        }
+        myfile << "\n";
+	    myfile.close();
  	}
-  	else cout << "Unable to open file";
-	
-
-
+  	else cout << "Unable to open file";	
 
 	return 0;
 }
