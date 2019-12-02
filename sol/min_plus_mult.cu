@@ -141,7 +141,6 @@ void correctnessTests(int argc, char *argv[]) {
 		ifstream myfile;
 		myfile.open(argv[i]);
 		myfile >> matrixWidth;
-		cout<<matrixWidth<<endl;
 
 		//load first input matrix
 		int sizeOfMatrix = matrixWidth*matrixWidth;
@@ -234,6 +233,7 @@ void correctnessTests(int argc, char *argv[]) {
 		//min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
 		cudaThreadSynchronize();	
 		cudaEventRecord(stop);
+		cudaEventSynchronize(stop);
 		cudaEventSynchronize(stop);
 
 		float milliseconds = 0;
