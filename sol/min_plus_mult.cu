@@ -18,7 +18,7 @@ void print(int *matrix, int matrixWidth) {
 	}
 }
 
-__global__ void min_plus_cache_first_matrix(int *matrix1, int *matrix2, int *result, int matrixWidth) {
+__global__ void min_plus_kernel_cache_first(int *matrix1, int *matrix2, int *result, int matrixWidth) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	extern __shared__ int sData[];
@@ -40,7 +40,7 @@ __global__ void min_plus_cache_first_matrix(int *matrix1, int *matrix2, int *res
 	result[index] = resultValue;
 }
 
-__global__ void min_plus_cache_entire_both_matrices(int *matrix1, int *matrix2, int *result, int matrixWidth) {
+__global__ void min_plus_kernel_cache_both(int *matrix1, int *matrix2, int *result, int matrixWidth) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int offset = matrixWidth * matrixWidth;
 
@@ -202,17 +202,17 @@ void correctnessTests(int argc, char *argv[]) {
 			if (matrixWidth < 64) {
 				int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
 				cudaEventRecord(start);
-				cout << "Running with both cached" << endl;
-				min_plus_cache_entire_both_matrices<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+				cout << "CACHING BOTH MATRICES:" << endl;
+				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
 			} else {
 				int sharedMemorySize = sizeOfMatrix*sizeof(int);
 				cudaEventRecord(start);
-				cout << "running with first matrix cached" << endl;
-				min_plus_cache_first_matrix<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+				cout << "CACHING FIRST MATRIX:" << endl;
+				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
 			}
 
 		} else {
-			cout << "running with row cached" << endl;
+			cout << "CACHING ROW IN MATRIX:" << endl;
 			int numberOfThreads = min(matrixWidth, 1024);
 			int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
 			int sharedMemorySize = matrixWidth*sizeof(int);
