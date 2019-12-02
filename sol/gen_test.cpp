@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 	min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
 
 	cout<<endl<<"Final Result: "<<endl;
-	print(matrix2,matrixSize);
+	print(matrix3,matrixSize);
 
 	ofstream myfile ("example.txt");
 	if (myfile.is_open()) {
