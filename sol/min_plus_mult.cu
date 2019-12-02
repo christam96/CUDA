@@ -133,7 +133,7 @@ void min_plus_serial(int *matrix1, int *matrix2, int *result, int matrixWidth) {
 	}
 }
 
-void correctnessTests(int argc, char *argv[]) {
+void checkCorrectness(int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++) {
 		int matrixWidth;
 
@@ -279,6 +279,6 @@ void correctnessTests(int argc, char *argv[]) {
 
 
 int main(int argc, char *argv[]) {
-	correctnessTests(argc, argv);
+	checkCorrectness(argc, argv);
 	return 0;
 }
