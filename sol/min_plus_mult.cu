@@ -6,6 +6,7 @@
 #include <cmath>
 #include <chrono>
 #include <bits/stdc++.h> 
+#include <math.h>
 
 using namespace std;
 
@@ -20,13 +21,14 @@ void printMatrix(int *matrix, int matrixWidth) {
 }
 
 // function to evaluate logarithm base-10 
-int calculateLog10(double d) 
+int calculateLog(int d) 
 { 
 	int result;
-	double x = log10(d);
-	result = round(x);
-	printf("Log %f is %d", d, result);
-	return result; 
+	int x = log2(d);
+	//result = round(x);
+	printf("Log %d is %d", d, x);
+	cout<<endl;
+	return x; 
 } 
 
 __global__ void min_plus_kernel_cache_first(int *matrix1, int *matrix2, int *result, int matrixWidth) {
@@ -205,7 +207,7 @@ void testHarness (int argc, char *argv[]) {
 		//cout << endl << "Result" << endl;
 		//printMatrix(result, matrixWidth);
 
-		calculateLog10(matrixWidth);
+		calculateLog(matrixWidth);
 
 		if (matrixWidth < 128) {
 			int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
