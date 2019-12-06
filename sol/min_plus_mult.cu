@@ -205,6 +205,7 @@ void testHarness (int argc, char *argv[]) {
 		//cout << endl << "Result" << endl;
 		//printMatrix(result, matrixWidth);
 
+		calculateLog10(matrixWidth);
 
 		if (matrixWidth < 128) {
 			int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
