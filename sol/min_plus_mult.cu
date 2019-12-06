@@ -20,6 +20,16 @@ void printMatrix(int *matrix, int matrixWidth) {
 	}
 }
 
+bool equivChecker(int *resultMatrix, int *expectedMatrix, int matrixSize) {
+	bool ifEquiv = true;
+	for (int k = 0; k < matrixSize; k++) {
+		if (expectedMatrix[k] != resultMatrix[k]) {
+			ifEquiv = false;
+			break;
+		}
+	}
+}
+
 // function to evaluate logarithm base-2
 int calculateLog(int d) 
 { 
@@ -315,20 +325,21 @@ void implementAlgorithm(int argc, char *argv[]) {
 		auto dur = end - begin;
 		auto serialTime = chrono::duration_cast<chrono::milliseconds>(dur).count();
 
-		//validate result
-		bool matches = true;
-		for (int k = 0; k < sizeOfMatrix; k++) {
-			if (expected[k] != result[k]) {
-				matches = false;
-				break;
-			}
-		}
+		// //validate result
+		// bool ifEquiv = true;
+		// for (int k = 0; k < sizeOfMatrix; k++) {
+		// 	if (expected[k] != result[k]) {
+		// 		ifEquiv = false;
+		// 		break;
+		// 	}
+		// }
+		bool check = equivChecker(expected,result, sizeOfMatrix);
 
 		cudaFree(cudaMatrix1);
 		cudaFree(cudaMatrix2);
 		cudaFree(cudaResult);
 
-		if (matches) {
+		if (ifEquiv) {
 			cout << "Computed min-plus multiplication for " << argv[i] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
 		} else {
 			for (int k = 0; k < sizeOfMatrix; k++) {
