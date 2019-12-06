@@ -300,7 +300,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 		min_plus_serial(matrix1, matrix2, serialResult, matrixWidth);	
 		auto end = chrono::high_resolution_clock::now();
 		auto dur = end - begin;
-		auto serialTime = chrono::duration_cast<chrono::ms>(dur).count();
+		auto serialTime = chrono::duration_cast<chrono::milliseconds>(dur).count();
 
 		// //validate result
 		// bool ifEquiv = true;
@@ -317,7 +317,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 		cudaFree(cudaResult);
 
 		if (check) {
-			cout << "Computed min-plus multiplication for " << argv[i] << " correctly in " << ms << " ms in parallel and " << serialTime << " ms in serial." << endl;
+			cout << "Computed min-plus multiplication for " << argv[i] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
 		} else {
 			for (int k = 0; k < sizeOfMatrix; k++) {
 				if (k % matrixWidth == 0) {
@@ -326,7 +326,11 @@ void implementAlgorithm(int argc, char *argv[]) {
 
 				cout << result[k] << " ";
 			}
+
 			cout << "Error computing min-plus for " << argv[i] << endl;
+			//cout << endl << cudaGetErrorString(cudaGetLastError()) << endl;
+			//cudaError_t error = cudaGetLastError();
+		//	cout << cudaGetLastError() << endl;
 		}
 	}
 }
