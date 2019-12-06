@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void print(int *matrix, int matrixWidth) {
+void printMatrix(int *matrix, int matrixWidth) {
 	for (int i = 0; i < matrixWidth*matrixWidth; i++) {
 		if (i % matrixWidth == 0) {
 			cout << endl;
@@ -68,7 +68,7 @@ __global__ void min_plus_kernel_cache_both(int *matrix1, int *matrix2, int *resu
 }
 
 __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidth) {
-	//printf("WASSSUP \n");
+	//printMatrixf("WASSSUP \n");
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int rowNumber = blockIdx.x/(matrixWidth/blockDim.x);
 	int firstIndexInRow = rowNumber*matrixWidth;
@@ -114,7 +114,7 @@ __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidt
 	}
 
 	result[index] = resultValue;
-	//printf("DONEZO \n");
+	//printMatrixf("DONEZO \n");
 }
 
 void min_plus_serial(int *matrix1, int *matrix2, int *result, int matrixWidth) {
@@ -133,7 +133,7 @@ void min_plus_serial(int *matrix1, int *matrix2, int *result, int matrixWidth) {
 	}
 }
 
-void checkCorrectness(int argc, char *argv[]) {
+void testHarness (int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++) {
 		int matrixWidth;
 
@@ -160,10 +160,10 @@ void checkCorrectness(int argc, char *argv[]) {
 
 
 		cout << "Matrix 1" << endl;
-		print(matrix1, matrixWidth);
+		printMatrix(matrix1, matrixWidth);
 		
 		cout << endl << "Matrix 2" << endl;
-		print(matrix2, matrixWidth);
+		printMatrix(matrix2, matrixWidth);
 		
 
 		//load expected result
@@ -174,7 +174,7 @@ void checkCorrectness(int argc, char *argv[]) {
 
 
 		cout << endl << "Expected" << endl;
-		print(expected, matrixWidth);
+		printMatrix(expected, matrixWidth);
 
 		int* cudaMatrix1;
 		int* cudaMatrix2;
@@ -192,7 +192,7 @@ void checkCorrectness(int argc, char *argv[]) {
 		cudaMemcpy(cudaResult, result, sizeof(int)*sizeOfMatrix, cudaMemcpyHostToDevice);
 
 		//cout << endl << "Result" << endl;
-		//print(result, matrixWidth);
+		//printMatrix(result, matrixWidth);
 
 
 		if (matrixWidth < 128) {
@@ -279,6 +279,6 @@ void checkCorrectness(int argc, char *argv[]) {
 
 
 int main(int argc, char *argv[]) {
-	checkCorrectness(argc, argv);
+	testHarness (argc, argv);
 	return 0;
 }
