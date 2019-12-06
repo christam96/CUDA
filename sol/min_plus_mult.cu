@@ -20,7 +20,7 @@ void printMatrix(int *matrix, int matrixWidth) {
 	}
 }
 
-// function to evaluate logarithm base-10 
+// function to evaluate logarithm base-2
 int calculateLog(int d) 
 { 
 	int result;
@@ -81,7 +81,6 @@ __global__ void min_plus_kernel_cache_both(int *matrix1, int *matrix2, int *resu
 }
 
 __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidth) {
-	//printMatrixf("WASSSUP \n");
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int rowNumber = blockIdx.x/(matrixWidth/blockDim.x);
 	int firstIndexInRow = rowNumber*matrixWidth;
@@ -171,6 +170,7 @@ void testHarness (int argc, char *argv[]) {
 			myfile >> matrix2[j];
 		}
 
+		TEST HIIHISHIOSDJLKFSJDFKLJSLKDFJLKSJFLKSJD
 
 		cout << "Matrix 1" << endl;
 		printMatrix(matrix1, matrixWidth);
@@ -208,7 +208,6 @@ void testHarness (int argc, char *argv[]) {
 		//cout << endl << "Result" << endl;
 		//printMatrix(result, matrixWidth);
 
-		
 
 		if (matrixWidth < 128) {
 			int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
