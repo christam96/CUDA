@@ -291,8 +291,8 @@ void implementAlgorithm(int argc, char *argv[]) {
 		cudaEventSynchronize(stop);
 		cudaEventSynchronize(stop);
 
-		float ms = 0;
-		cudaEventElapsedTime(&ms, start, stop);
+		float milliseconds = 0;
+		cudaEventElapsedTime(&milliseconds, start, stop);
 		cudaMemcpy(result, cudaResult, sizeof(int)*sizeOfMatrix, cudaMemcpyDeviceToHost);		
 
 
