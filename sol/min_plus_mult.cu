@@ -20,12 +20,12 @@ void printMatrix(int *matrix, int matrixWidth) {
 }
 
 // function to evaluate logarithm base-10 
-double calculateLog10(double d) 
+int calculateLog10(double d) 
 { 
 	int result;
 	double x = log10(d);
 	result = round(x);
-	return log10(d); 
+	return result; 
 } 
 
 __global__ void min_plus_kernel_cache_first(int *matrix1, int *matrix2, int *result, int matrixWidth) {
