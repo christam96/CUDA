@@ -185,6 +185,7 @@ void testHarness (int argc, char *argv[]) {
 			myfile >> expected[j];
 		}
 
+		calculateLog(matrixWidth);
 
 		cout << endl << "Expected" << endl;
 		printMatrix(expected, matrixWidth);
@@ -207,7 +208,7 @@ void testHarness (int argc, char *argv[]) {
 		//cout << endl << "Result" << endl;
 		//printMatrix(result, matrixWidth);
 
-		calculateLog(matrixWidth);
+		
 
 		if (matrixWidth < 128) {
 			int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);

@@ -33,6 +33,16 @@ void min_plus_serial(int *matrix1, int *matrix2, int *result, int matrixWidth) {
         }
 }
 
+// function to evaluate logarithm base-2
+int calculateLog(int d) 
+{ 
+	int result;
+	int x = log2(d);
+	//result = round(x);
+	printf("Log %d is %d", d, x);
+	cout<<endl;
+	return x; 
+} 
 
 
 int main(int argc, char *argv[])
@@ -79,7 +89,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
+	int h = calculateLog(matrixSize);
+	cout<<h<<endl;
 
 	cout<<"Input Matrix";	
 	print(matrix1, matrixSize);
