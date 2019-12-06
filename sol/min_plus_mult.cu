@@ -21,13 +21,12 @@ void printMatrix(int *matrix, int matrixWidth) {
 }
 
 bool equivChecker(int *resultMatrix, int *expectedMatrix, int matrixSize) {
-	bool ifEquiv = true;
 	for (int k = 0; k < matrixSize; k++) {
 		if (expectedMatrix[k] != resultMatrix[k]) {
-			ifEquiv = false;
-			break;
+			return false;
 		}
 	}
+	return true;
 }
 
 // function to evaluate logarithm base-2
