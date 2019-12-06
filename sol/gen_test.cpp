@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < h; i++) {
 		if (i < h-1) {
 			min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
-			for (int j = 0; j< matrixSize; j++) {
+			for (int j = 0; j< sizeOfMatrix; j++) {
 				matrix2[j] = matrix3[j];
 				matrix3[j] = INT_MAX;
 			}

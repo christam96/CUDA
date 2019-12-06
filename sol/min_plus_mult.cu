@@ -206,33 +206,89 @@ void implementAlgorithm(int argc, char *argv[]) {
 		//cout << endl << "Result" << endl;
 		//printMatrix(result, matrixWidth);
 
-
-
-
-		if (matrixWidth < 128) {
-			int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
-			int numberOfThreads = min(1024, sizeOfMatrix);
-
-			if (matrixWidth < 64) {
-				int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
-				cudaEventRecord(start);
-				cout << "CACHING BOTH MATRICES:" << endl;
-				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		for (int i = 0; i < h; i++) {
+			if (i < h-1) {
+				if (matrixWidth < 128) {
+					int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
+					int numberOfThreads = min(1024, sizeOfMatrix);
+		
+					if (matrixWidth < 64) {
+						int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
+						cudaEventRecord(start);
+						cout << "CACHING BOTH MATRICES:" << endl;
+						min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+					} else {
+						int sharedMemorySize = sizeOfMatrix*sizeof(int);
+						cudaEventRecord(start);
+						cout << "CACHING FIRST MATRIX:" << endl;
+						min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+					}
+		
+				} else {
+					cout << "CACHING ROW IN MATRIX:" << endl;
+					int numberOfThreads = min(matrixWidth, 1024);
+					int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
+					int sharedMemorySize = matrixWidth*sizeof(int);
+					cudaEventRecord(start);
+					min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+				}
+				for (int j = 0; j < sizeOfMatrix; j++) {
+					cudaMatrix2[j] = cudaResult[j];
+					cudaResult[j] = INT_MAX;
+				}
 			} else {
-				int sharedMemorySize = sizeOfMatrix*sizeof(int);
-				cudaEventRecord(start);
-				cout << "CACHING FIRST MATRIX:" << endl;
-				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+				if (matrixWidth < 128) {
+					int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
+					int numberOfThreads = min(1024, sizeOfMatrix);
+		
+					if (matrixWidth < 64) {
+						int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
+						cudaEventRecord(start);
+						cout << "CACHING BOTH MATRICES:" << endl;
+						min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+					} else {
+						int sharedMemorySize = sizeOfMatrix*sizeof(int);
+						cudaEventRecord(start);
+						cout << "CACHING FIRST MATRIX:" << endl;
+						min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+					}
+		
+				} else {
+					cout << "CACHING ROW IN MATRIX:" << endl;
+					int numberOfThreads = min(matrixWidth, 1024);
+					int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
+					int sharedMemorySize = matrixWidth*sizeof(int);
+					cudaEventRecord(start);
+					min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+				}
 			}
-
-		} else {
-			cout << "CACHING ROW IN MATRIX:" << endl;
-			int numberOfThreads = min(matrixWidth, 1024);
-			int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
-			int sharedMemorySize = matrixWidth*sizeof(int);
-			cudaEventRecord(start);
-			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
 		}
+
+		// INITIAL KERNEL
+		// if (matrixWidth < 128) {
+		// 	int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
+		// 	int numberOfThreads = min(1024, sizeOfMatrix);
+
+		// 	if (matrixWidth < 64) {
+		// 		int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
+		// 		cudaEventRecord(start);
+		// 		cout << "CACHING BOTH MATRICES:" << endl;
+		// 		min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// 	} else {
+		// 		int sharedMemorySize = sizeOfMatrix*sizeof(int);
+		// 		cudaEventRecord(start);
+		// 		cout << "CACHING FIRST MATRIX:" << endl;
+		// 		min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// 	}
+
+		// } else {
+		// 	cout << "CACHING ROW IN MATRIX:" << endl;
+		// 	int numberOfThreads = min(matrixWidth, 1024);
+		// 	int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
+		// 	int sharedMemorySize = matrixWidth*sizeof(int);
+		// 	cudaEventRecord(start);
+		// 	min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// }
 
 		//int numberOfThreadBlocks = min(matrixWidth, 1024); //ceil(sizeOfMatrix/1024.0);
 		//int numberOfThreads = min(matrixWidth, 1024); //min(1024, sizeOfMatrix);
