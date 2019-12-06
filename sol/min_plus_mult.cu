@@ -20,9 +20,9 @@ void printMatrix(int *matrix, int matrixWidth) {
 	}
 }
 
-bool equivChecker(int *resultMatrix, int *expectedMatrix, int matrixSize) {
+bool equivChecker(int *ResultMatrixMatrix, int *expectedMatrix, int matrixSize) {
 	for (int k = 0; k < matrixSize; k++) {
-		if (expectedMatrix[k] != resultMatrix[k]) {
+		if (expectedMatrix[k] != ResultMatrixMatrix[k]) {
 			return false;
 		}
 	}
@@ -32,69 +32,67 @@ bool equivChecker(int *resultMatrix, int *expectedMatrix, int matrixSize) {
 // function to evaluate logarithm base-2
 int calculateLog(int d) 
 { 
-	int result;
+	int ResultMatrix;
 	int x = log2(d);
-	//result = round(x);
 	printf("Log %d is %d", d, x);
-	cout<<endl;
 	return x; 
 } 
 
-__global__ void min_plus_kernel_cache_first(int *matrix1, int *matrix2, int *result, int matrixWidth) {
+__global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWidth) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	extern __shared__ int sharedData[];
-	sharedData[index] = matrix1[index];
+	sharedData[index] = MatrixA[index];
 	__syncthreads();
 
-	int resultValue = INT_MAX;
+	int resVal = INT_MAX;
 
 	int col = index % matrixWidth;
 	int row = index/matrixWidth;
 
 	for (int k = 0; k < matrixWidth; k++) {
 		int firstNum = sharedData[row*matrixWidth + k];
-		int secondNum = matrix2[k*matrixWidth + col];
+		int secondNum = MatrixB[k*matrixWidth + col];
 			
-		resultValue = min(resultValue, firstNum + secondNum);
+		resVal = min(resVal, firstNum + secondNum);
 	}
 	
-	result[index] = resultValue;
+	ResultMatrix[index] = resVal;
 }
 
-__global__ void min_plus_kernel_cache_both(int *matrix1, int *matrix2, int *result, int matrixWidth) {
+__global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWidth) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int offset = matrixWidth * matrixWidth;
 
 	extern __shared__ int sharedData[];
-	sharedData[index] = matrix1[index];
-	sharedData[index + offset] = matrix2[index];
+	sharedData[index] = MatrixA[index];
+	sharedData[index + offset] = MatrixB[index];
 	__syncthreads();
 
-	int resultValue = INT_MAX;
+	int resVal = INT_MAX;
 
 	int col = index % matrixWidth;
 	int row = index/matrixWidth;
 	
-	//each thread computes the correct result for a given index in the 2D array
+	//each thread computes the correct ResultMatrix for a given index in the 2D array
 	for (int k = 0; k < matrixWidth; k++) {
 		int firstNum = sharedData[row*matrixWidth + k];
 		int secondNum = sharedData[k*matrixWidth + col + offset];
 		//int firstNum = sharedData[k];
-		//int secondNum = matrix2[k*matrixWidth + col];
+		//int secondNum = MatrixB[k*matrixWidth + col];
 			
-		resultValue = min(resultValue, firstNum + secondNum);
+		resVal = min(resVal, firstNum + secondNum);
 	}
 	
-	result[index] = resultValue;
+	ResultMatrix[index] = resVal;
 }
 
-__global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidth) {
+__global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWidth) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int rowNumber = blockIdx.x/(matrixWidth/blockDim.x);
 	int firstIndexInRow = rowNumber*matrixWidth;
 	
-	result[index] = 1;
+	ResultMatrix[index] = 1;
 
 	extern __shared__ int sharedData[];
 	int numberOfIndicesToLoad = matrixWidth/blockDim.x;
@@ -103,37 +101,37 @@ __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidt
 	}
 
 	for (int i = 0; i < numberOfIndicesToLoad; i++) {
-		sharedData[threadIdx.x + i*1024] = matrix1[firstIndexInRow + threadIdx.x + 1024*i];
+		sharedData[threadIdx.x + i*1024] = MatrixA[firstIndexInRow + threadIdx.x + 1024*i];
 	}
 
 	__syncthreads();
 
-	int resultValue = INT_MAX;
+	int resVal = INT_MAX;
 
 	int col = index % matrixWidth;
 
-	//each thread computes the correct result for a given index in the 2D array
+	//each thread computes the correct ResultMatrix for a given index in the 2D array
 	for (int k = 0; k < matrixWidth; k++) {
 		int firstNum = sharedData[k];
-		int secondNum = matrix2[k*matrixWidth + col];
+		int secondNum = MatrixB[k*matrixWidth + col];
 		
-		resultValue = min(resultValue, firstNum + secondNum);
+		resVal = min(resVal, firstNum + secondNum);
 	}
 
-	result[index] = resultValue;
+	ResultMatrix[index] = resVal;
 }
 
-void min_plus_serial(int *matrix1, int *matrix2, int *result, int matrixWidth) {
+void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWidth) {
 	int numberOfEntries = matrixWidth * matrixWidth;
 	for (int i = 0; i < numberOfEntries; i++) {
-		result[i] = INT_MAX;
+		ResultMatrix[i] = INT_MAX;
 	}
 
 	for (int row = 0; row < matrixWidth; row++) {
 		for (int col = 0; col < matrixWidth; col++) {
 			for (int k = 0; k < matrixWidth; k++) {
 				int index = row*matrixWidth + col;
-				result[index] = min(result[index], matrix1[row*matrixWidth + k] + matrix2[k*matrixWidth + col]);
+				ResultMatrix[index] = min(ResultMatrix[index], MatrixA[row*matrixWidth + k] + MatrixB[k*matrixWidth + col]);
 			}
 		}
 	}
@@ -150,28 +148,28 @@ void implementAlgorithm(int argc, char *argv[]) {
 
 		//load first input matrix
 		int sizeOfMatrix = matrixWidth*matrixWidth;
-		int* matrix1 = (int*) malloc(sizeOfMatrix*sizeof(int));
-		int* matrix2 = (int*) malloc(sizeOfMatrix*sizeof(int));
-		int* result = (int*) malloc(sizeOfMatrix*sizeof(int));
-		int* serialResult = (int*) malloc(sizeOfMatrix*sizeof(int));
+		int* MatrixA = (int*) malloc(sizeOfMatrix*sizeof(int));
+		int* MatrixB = (int*) malloc(sizeOfMatrix*sizeof(int));
+		int* ResultMatrix = (int*) malloc(sizeOfMatrix*sizeof(int));
+		int* serialResultMatrix = (int*) malloc(sizeOfMatrix*sizeof(int));
 		for (int j = 0; j < sizeOfMatrix; j++) {
-			myfile >> matrix1[j];
-			result[j] = INT_MAX;
-			serialResult[j] = INT_MAX;
+			myfile >> MatrixA[j];
+			ResultMatrix[j] = INT_MAX;
+			serialResultMatrix[j] = INT_MAX;
 		}	
 
 		for (int j = 0; j < sizeOfMatrix; j++) {
-			myfile >> matrix2[j];
+			myfile >> MatrixB[j];
 		}
 
 		cout << "Matrix 1" << endl;
-		printMatrix(matrix1, matrixWidth);
+		printMatrix(MatrixA, matrixWidth);
 		
 		cout << endl << "Matrix 2" << endl;
-		printMatrix(matrix2, matrixWidth);
+		printMatrix(MatrixB, matrixWidth);
 		
 
-		//load expected result
+		//load expected ResultMatrix
 		int* expected = (int*) malloc(sizeOfMatrix*sizeof(int));
 		for (int j = 0; j < sizeOfMatrix; j++) {
 			myfile >> expected[j];
@@ -182,23 +180,23 @@ void implementAlgorithm(int argc, char *argv[]) {
 		cout << endl << "Expected" << endl;
 		printMatrix(expected, matrixWidth);
 
-		int* cudaMatrix1;
-		int* cudaMatrix2;
-		int* cudaResult;
-		cudaMalloc((void **) &cudaMatrix1, sizeof(int) * sizeOfMatrix);
-		cudaMalloc((void **) &cudaMatrix2, sizeof(int) * sizeOfMatrix);
-		cudaMalloc((void **) &cudaResult, sizeof(int) * sizeOfMatrix);
+		int* cudaMatrixA;
+		int* cudaMatrixB;
+		int* cudaResultMatrix;
+		cudaMalloc((void **) &cudaMatrixA, sizeof(int) * sizeOfMatrix);
+		cudaMalloc((void **) &cudaMatrixB, sizeof(int) * sizeOfMatrix);
+		cudaMalloc((void **) &cudaResultMatrix, sizeof(int) * sizeOfMatrix);
 
 		cudaEvent_t start, stop;
 		cudaEventCreate(&start);
 		cudaEventCreate(&stop);
 		
-		cudaMemcpy(cudaMatrix1, matrix1, sizeof(int)*sizeOfMatrix, cudaMemcpyHostToDevice);
-		cudaMemcpy(cudaMatrix2, matrix2, sizeof(int)*sizeOfMatrix, cudaMemcpyHostToDevice);
-		cudaMemcpy(cudaResult, result, sizeof(int)*sizeOfMatrix, cudaMemcpyHostToDevice);
+		cudaMemcpy(cudaMatrixA, MatrixA, sizeof(int)*sizeOfMatrix, cudaMemcpyHostToDevice);
+		cudaMemcpy(cudaMatrixB, MatrixB, sizeof(int)*sizeOfMatrix, cudaMemcpyHostToDevice);
+		cudaMemcpy(cudaResultMatrix, ResultMatrix, sizeof(int)*sizeOfMatrix, cudaMemcpyHostToDevice);
 
-		//cout << endl << "Result" << endl;
-		//printMatrix(result, matrixWidth);
+		//cout << endl << "ResultMatrix" << endl;
+		//printMatrix(ResultMatrix, matrixWidth);
 
 		// ALTERNATIVE KERNEL CALL
 		// for (int i = 0; i < h; i++) {
@@ -211,12 +209,12 @@ void implementAlgorithm(int argc, char *argv[]) {
 		// 				int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
 		// 				cudaEventRecord(start);
 		// 				cout << "CACHING BOTH MATRICES:" << endl;
-		// 				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// 				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 		// 			} else {
 		// 				int sharedMemorySize = sizeOfMatrix*sizeof(int);
 		// 				cudaEventRecord(start);
 		// 				cout << "CACHING FIRST MATRIX:" << endl;
-		// 				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// 				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 		// 			}
 		
 		// 		} else {
@@ -225,11 +223,11 @@ void implementAlgorithm(int argc, char *argv[]) {
 		// 			int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
 		// 			int sharedMemorySize = matrixWidth*sizeof(int);
 		// 			cudaEventRecord(start);
-		// 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 		// 		}
 		// 		for (int j = 0; j < sizeOfMatrix; j++) {
-		// 			cudaMatrix2[j] = cudaResult[j];
-		// 			cudaResult[j] = INT_MAX;
+		// 			cudaMatrixB[j] = cudaResultMatrix[j];
+		// 			cudaResultMatrix[j] = INT_MAX;
 		// 		}
 		// 	} else {
 		// 		if (matrixWidth < 128) {
@@ -240,12 +238,12 @@ void implementAlgorithm(int argc, char *argv[]) {
 		// 				int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
 		// 				cudaEventRecord(start);
 		// 				cout << "CACHING BOTH MATRICES:" << endl;
-		// 				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// 				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 		// 			} else {
 		// 				int sharedMemorySize = sizeOfMatrix*sizeof(int);
 		// 				cudaEventRecord(start);
 		// 				cout << "CACHING FIRST MATRIX:" << endl;
-		// 				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// 				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 		// 			}
 		
 		// 		} else {
@@ -254,7 +252,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 		// 			int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
 		// 			int sharedMemorySize = matrixWidth*sizeof(int);
 		// 			cudaEventRecord(start);
-		// 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+		// 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 		// 		}
 		// 	}
 		// }
@@ -268,12 +266,12 @@ void implementAlgorithm(int argc, char *argv[]) {
 				int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
 				cudaEventRecord(start);
 				cout << "CACHING BOTH MATRICES:" << endl;
-				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 			} else {
 				int sharedMemorySize = sizeOfMatrix*sizeof(int);
 				cudaEventRecord(start);
 				cout << "CACHING FIRST MATRIX:" << endl;
-				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 			}
 
 		} else {
@@ -282,7 +280,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 			int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
 			int sharedMemorySize = matrixWidth*sizeof(int);
 			cudaEventRecord(start);
-			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
+			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
 		}
 		
 		cudaThreadSynchronize();	
@@ -292,28 +290,28 @@ void implementAlgorithm(int argc, char *argv[]) {
 
 		float milliseconds = 0;
 		cudaEventElapsedTime(&milliseconds, start, stop);
-		cudaMemcpy(result, cudaResult, sizeof(int)*sizeOfMatrix, cudaMemcpyDeviceToHost);		
+		cudaMemcpy(ResultMatrix, cudaResultMatrix, sizeof(int)*sizeOfMatrix, cudaMemcpyDeviceToHost);		
 
 
 		auto begin = chrono::high_resolution_clock::now();
-		min_plus_serial(matrix1, matrix2, serialResult, matrixWidth);	
+		min_plus_serial(MatrixA, MatrixB, serialResultMatrix, matrixWidth);	
 		auto end = chrono::high_resolution_clock::now();
 		auto dur = end - begin;
 		auto serialTime = chrono::duration_cast<chrono::milliseconds>(dur).count();
 
-		// //validate result
+		// //validate ResultMatrix
 		// bool ifEquiv = true;
 		// for (int k = 0; k < sizeOfMatrix; k++) {
-		// 	if (expected[k] != result[k]) {
+		// 	if (expected[k] != ResultMatrix[k]) {
 		// 		ifEquiv = false;
 		// 		break;
 		// 	}
 		// }
-		bool check = equivChecker(expected,result, sizeOfMatrix);
+		bool check = equivChecker(expected,ResultMatrix, sizeOfMatrix);
 
-		cudaFree(cudaMatrix1);
-		cudaFree(cudaMatrix2);
-		cudaFree(cudaResult);
+		cudaFree(cudaMatrixA);
+		cudaFree(cudaMatrixB);
+		cudaFree(cudaResultMatrix);
 
 		if (check) {
 			cout << "Computed min-plus multiplication for " << argv[i] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
@@ -323,7 +321,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 					cout << endl;
 				}
 
-				cout << result[k] << " ";
+				cout << ResultMatrix[k] << " ";
 			}
 
 			cout << "Error computing min-plus for " << argv[i] << endl;
