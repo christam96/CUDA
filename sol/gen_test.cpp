@@ -105,23 +105,23 @@ int main(int argc, char *argv[])
 	cout<<endl<<"Matrix2:";
 	print(matrix2, matrixSize);
 
-	for (int i = 0; i < h; i++) {
-		if (i < h-1) {
-			min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
-			for (int j = 0; j < matrixSize ; j++) {
-				matrix2[j] = matrix3[j];
-				matrix3[j] = INT_MAX;
-			}
-		} else {
-			min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
-		}
-	}
+	// for (int i = 0; i < h; i++) {
+	// 	if (i < h-1) {
+	// 		min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
+	// 		for (int j = 0; j < matrixSize ; j++) {
+	// 			matrix2[j] = matrix3[j];
+	// 			matrix3[j] = INT_MAX;
+	// 		}
+	// 	} else {
+	// 		min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
+	// 	}
+	// }
 
 	cout<<endl<<"Final Result after logn iterations: "<<endl;
         print(matrix3,matrixSize);
 
 	
-	//min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
+	min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
 
 	cout<<endl<<"Final Result: "<<endl;
 	print(matrix3,matrixSize);
