@@ -94,10 +94,6 @@ __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidt
 	int rowNumber = blockIdx.x/(matrixWidth/blockDim.x);
 	int firstIndexInRow = rowNumber*matrixWidth;
 	
-//	int startLoadingAt = matrixWidth*(blockIdx.x
-
-
-//	int offset = matrixWidth * matrixWidth;
 	result[index] = 1;
 
 	extern __shared__ int sData[];
@@ -107,27 +103,17 @@ __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidt
 	}
 
 	for (int i = 0; i < numberOfIndicesToLoad; i++) {
-		//sData[index - blockIdx.x*blockDim.x + i*1024] = matrix1[firstIndexInRow + thread + 1024*i];
 		sData[threadIdx.x + i*1024] = matrix1[firstIndexInRow + threadIdx.x + 1024*i];
 	}
-//	sData[index - blockIdx.x*blockDim.x] = matrix1[index];
-	//sData[index + offset] = matrix2[index];
-	__syncthreads();
 
-//	int col[matrixWidth] = {};
-//	for (int i = 0; i < matrixWidth; i++) {
-//		col[i] = matrix2[threadIdx.x + i*matrixWidth];
-//	}
+	__syncthreads();
 
 	int resultValue = INT_MAX;
 
 	int col = index % matrixWidth;
-//	int row = index/matrixWidth;
 
 	//each thread computes the correct result for a given index in the 2D array
 	for (int k = 0; k < matrixWidth; k++) {
-		//int firstNum = sData[row*matrixWidth + k];
-		//int secondNum = sData[k*matrixWidth + col + offset];
 		int firstNum = sData[k];
 		int secondNum = matrix2[k*matrixWidth + col];
 		
@@ -135,7 +121,6 @@ __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidt
 	}
 
 	result[index] = resultValue;
-	//printMatrixf("DONEZO \n");
 }
 
 void min_plus_serial(int *matrix1, int *matrix2, int *result, int matrixWidth) {
@@ -300,12 +285,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
 		}
 
-		//int numberOfThreadBlocks = min(matrixWidth, 1024); //ceil(sizeOfMatrix/1024.0);
-		//int numberOfThreads = min(matrixWidth, 1024); //min(1024, sizeOfMatrix);
-		//int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
-		//int sharedMemorySize = matrixWidth*sizeof(int); //sizeOfMatrix*2*sizeof(int);
-
-		//execute function
+		
 
 		
 		//min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
