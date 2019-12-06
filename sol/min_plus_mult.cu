@@ -32,7 +32,6 @@ bool equivChecker(int *ResultMatrixMatrix, int *expectedMatrix, int matrixSize) 
 // function to evaluate logarithm base-2
 int calculateLog(int d) 
 { 
-	int ResultMatrix;
 	int x = log2(d);
 	printf("Log %d is %d", d, x);
 	return x; 
