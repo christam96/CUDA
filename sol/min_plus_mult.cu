@@ -340,7 +340,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 		cudaFree(cudaMatrix2);
 		cudaFree(cudaResult);
 
-		if (ifEquiv) {
+		if (check) {
 			cout << "Computed min-plus multiplication for " << argv[i] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
 		} else {
 			for (int k = 0; k < sizeOfMatrix; k++) {
