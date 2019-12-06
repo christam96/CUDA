@@ -25,6 +25,7 @@ int calculateLog10(double d)
 	int result;
 	double x = log10(d);
 	result = round(x);
+	printf("Log %f is %d", d, result);
 	return result; 
 } 
 
