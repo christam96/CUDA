@@ -145,7 +145,7 @@ void min_plus_serial(int *matrix1, int *matrix2, int *result, int matrixWidth) {
 	}
 }
 
-void testHarness (int argc, char *argv[]) {
+void implementAlgorithm(int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++) {
 		int matrixWidth;
 
@@ -169,8 +169,6 @@ void testHarness (int argc, char *argv[]) {
 		for (int j = 0; j < sizeOfMatrix; j++) {
 			myfile >> matrix2[j];
 		}
-
-		TEST HIIHISHIOSDJLKFSJDFKLJSLKDFJLKSJFLKSJD
 
 		cout << "Matrix 1" << endl;
 		printMatrix(matrix1, matrixWidth);
@@ -207,6 +205,8 @@ void testHarness (int argc, char *argv[]) {
 
 		//cout << endl << "Result" << endl;
 		//printMatrix(result, matrixWidth);
+
+
 
 
 		if (matrixWidth < 128) {
@@ -293,6 +293,6 @@ void testHarness (int argc, char *argv[]) {
 
 
 int main(int argc, char *argv[]) {
-	testHarness (argc, argv);
+	implementAlgorithm(argc, argv);
 	return 0;
 }
