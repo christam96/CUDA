@@ -117,8 +117,8 @@ int main(int argc, char *argv[])
 	// 	}
 	// }
 
-	cout<<endl<<"Final Result after logn iterations: "<<endl;
-        print(matrix3,matrixSize);
+	// cout<<endl<<"Final Result after logn iterations: "<<endl;
+    //     print(matrix3,matrixSize);
 
 	
 	min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
