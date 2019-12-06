@@ -43,8 +43,8 @@ int calculateLog(int d)
 __global__ void min_plus_kernel_cache_first(int *matrix1, int *matrix2, int *result, int matrixWidth) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	extern __shared__ int sData[];
-	sData[index] = matrix1[index];
+	extern __shared__ int sharedData[];
+	sharedData[index] = matrix1[index];
 	__syncthreads();
 
 	int resultValue = INT_MAX;
@@ -53,7 +53,7 @@ __global__ void min_plus_kernel_cache_first(int *matrix1, int *matrix2, int *res
 	int row = index/matrixWidth;
 
 	for (int k = 0; k < matrixWidth; k++) {
-		int firstNum = sData[row*matrixWidth + k];
+		int firstNum = sharedData[row*matrixWidth + k];
 		int secondNum = matrix2[k*matrixWidth + col];
 			
 		resultValue = min(resultValue, firstNum + secondNum);
@@ -66,9 +66,9 @@ __global__ void min_plus_kernel_cache_both(int *matrix1, int *matrix2, int *resu
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int offset = matrixWidth * matrixWidth;
 
-	extern __shared__ int sData[];
-	sData[index] = matrix1[index];
-	sData[index + offset] = matrix2[index];
+	extern __shared__ int sharedData[];
+	sharedData[index] = matrix1[index];
+	sharedData[index + offset] = matrix2[index];
 	__syncthreads();
 
 	int resultValue = INT_MAX;
@@ -78,9 +78,9 @@ __global__ void min_plus_kernel_cache_both(int *matrix1, int *matrix2, int *resu
 	
 	//each thread computes the correct result for a given index in the 2D array
 	for (int k = 0; k < matrixWidth; k++) {
-		int firstNum = sData[row*matrixWidth + k];
-		int secondNum = sData[k*matrixWidth + col + offset];
-		//int firstNum = sData[k];
+		int firstNum = sharedData[row*matrixWidth + k];
+		int secondNum = sharedData[k*matrixWidth + col + offset];
+		//int firstNum = sharedData[k];
 		//int secondNum = matrix2[k*matrixWidth + col];
 			
 		resultValue = min(resultValue, firstNum + secondNum);
@@ -96,14 +96,14 @@ __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidt
 	
 	result[index] = 1;
 
-	extern __shared__ int sData[];
+	extern __shared__ int sharedData[];
 	int numberOfIndicesToLoad = matrixWidth/blockDim.x;
 	if (matrixWidth % blockDim.x > threadIdx.x) {
 		numberOfIndicesToLoad++;
 	}
 
 	for (int i = 0; i < numberOfIndicesToLoad; i++) {
-		sData[threadIdx.x + i*1024] = matrix1[firstIndexInRow + threadIdx.x + 1024*i];
+		sharedData[threadIdx.x + i*1024] = matrix1[firstIndexInRow + threadIdx.x + 1024*i];
 	}
 
 	__syncthreads();
@@ -114,7 +114,7 @@ __global__ void min_plus(int *matrix1, int *matrix2, int *result, int matrixWidt
 
 	//each thread computes the correct result for a given index in the 2D array
 	for (int k = 0; k < matrixWidth; k++) {
-		int firstNum = sData[k];
+		int firstNum = sharedData[k];
 		int secondNum = matrix2[k*matrixWidth + col];
 		
 		resultValue = min(resultValue, firstNum + secondNum);
@@ -285,7 +285,6 @@ void implementAlgorithm(int argc, char *argv[]) {
 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
 		}
 		
-		//min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrix1, cudaMatrix2, cudaResult, matrixWidth);
 		cudaThreadSynchronize();	
 		cudaEventRecord(stop);
 		cudaEventSynchronize(stop);
