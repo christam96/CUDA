@@ -183,7 +183,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 			myfile >> expected[j];
 		}
 
-		calculateLog(matrixWidth);
+		int h = calculateLog(matrixWidth);
 
 		cout << endl << "Expected" << endl;
 		printMatrix(expected, matrixWidth);
