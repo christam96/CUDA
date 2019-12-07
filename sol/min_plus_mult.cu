@@ -337,7 +337,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 	int n;
 	ifstream myfile;
-	myfile.open(argv[i]);
+	myfile.open(argv[1]);
 	myfile >> n;
 	int h = calculateLog(n);
 	for (int i = 0; i < h; i++) {
