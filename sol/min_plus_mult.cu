@@ -274,7 +274,9 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < h; i++) {
 		p = implementAlgorithm(argc, argv);
 	}
-	cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << p.first << " ms in parallel and " << p.second << " milliseconds in serial." << endl;
+	if (p.fist != NULL && p.second != NULL) {
+		cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << p.first << " ms in parallel and " << p.second << " milliseconds in serial." << endl;
+	}
 
 	return 0;
 }
