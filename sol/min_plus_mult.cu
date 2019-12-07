@@ -10,9 +10,9 @@
 
 using namespace std;
 
-void printMatrix(int *matrix, int matrixWidth) {
-	for (int i = 0; i < matrixWidth*matrixWidth; i++) {
-		if (i % matrixWidth == 0) {
+void printMatrix(int *matrix, int n) {
+	for (int i = 0; i < n*n; i++) {
+		if (i % n == 0) {
 			cout << endl;
 		}
 
@@ -37,7 +37,7 @@ int calculateLog(int d)
 	return x; 
 } 
 
-__global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWidth) {
+__global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	extern __shared__ int sharedData[];
@@ -46,12 +46,12 @@ __global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *Res
 
 	int resVal = INT_MAX;
 
-	int col = index % matrixWidth;
-	int row = index/matrixWidth;
+	int col = index % n;
+	int row = index/n;
 
-	for (int k = 0; k < matrixWidth; k++) {
-		int firstNum = sharedData[row*matrixWidth + k];
-		int secondNum = MatrixB[k*matrixWidth + col];
+	for (int k = 0; k < n; k++) {
+		int firstNum = sharedData[row*n + k];
+		int secondNum = MatrixB[k*n + col];
 			
 		resVal = min(resVal, firstNum + secondNum);
 	}
@@ -59,9 +59,9 @@ __global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *Res
 	ResultMatrix[index] = resVal;
 }
 
-__global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWidth) {
+__global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	int offset = matrixWidth * matrixWidth;
+	int offset = n * n;
 
 	extern __shared__ int sharedData[];
 	sharedData[index] = MatrixA[index];
@@ -70,15 +70,15 @@ __global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *Resu
 
 	int resVal = INT_MAX;
 
-	int col = index % matrixWidth;
-	int row = index/matrixWidth;
+	int col = index % n;
+	int row = index/n;
 	
 	//each thread computes the correct ResultMatrix for a given index in the 2D array
-	for (int k = 0; k < matrixWidth; k++) {
-		int firstNum = sharedData[row*matrixWidth + k];
-		int secondNum = sharedData[k*matrixWidth + col + offset];
+	for (int k = 0; k < n; k++) {
+		int firstNum = sharedData[row*n + k];
+		int secondNum = sharedData[k*n + col + offset];
 		//int firstNum = sharedData[k];
-		//int secondNum = MatrixB[k*matrixWidth + col];
+		//int secondNum = MatrixB[k*n + col];
 			
 		resVal = min(resVal, firstNum + secondNum);
 	}
@@ -86,16 +86,18 @@ __global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *Resu
 	ResultMatrix[index] = resVal;
 }
 
-__global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWidth) {
+__global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+	int rowNumber = blockIdx.x/(n/blockDim.x);
+	int firstIndexInRow = rowNumber*n;
+	
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	int rowNumber = blockIdx.x/(matrixWidth/blockDim.x);
-	int firstIndexInRow = rowNumber*matrixWidth;
+
 	
 	ResultMatrix[index] = 1;
 
 	extern __shared__ int sharedData[];
-	int numberOfIndicesToLoad = matrixWidth/blockDim.x;
-	if (matrixWidth % blockDim.x > threadIdx.x) {
+	int numberOfIndicesToLoad = n/blockDim.x;
+	if (n % blockDim.x > threadIdx.x) {
 		numberOfIndicesToLoad++;
 	}
 
@@ -107,12 +109,12 @@ __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int matr
 
 	int resVal = INT_MAX;
 
-	int col = index % matrixWidth;
+	int col = index % n;
 
 	//each thread computes the correct ResultMatrix for a given index in the 2D array
-	for (int k = 0; k < matrixWidth; k++) {
+	for (int k = 0; k < n; k++) {
 		int firstNum = sharedData[k];
-		int secondNum = MatrixB[k*matrixWidth + col];
+		int secondNum = MatrixB[k*n + col];
 		
 		resVal = min(resVal, firstNum + secondNum);
 	}
@@ -120,17 +122,17 @@ __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int matr
 	ResultMatrix[index] = resVal;
 }
 
-void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWidth) {
-	int numberOfEntries = matrixWidth * matrixWidth;
+void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+	int numberOfEntries = n * n;
 	for (int i = 0; i < numberOfEntries; i++) {
 		ResultMatrix[i] = INT_MAX;
 	}
 
-	for (int row = 0; row < matrixWidth; row++) {
-		for (int col = 0; col < matrixWidth; col++) {
-			for (int k = 0; k < matrixWidth; k++) {
-				int index = row*matrixWidth + col;
-				ResultMatrix[index] = min(ResultMatrix[index], MatrixA[row*matrixWidth + k] + MatrixB[k*matrixWidth + col]);
+	for (int row = 0; row < n; row++) {
+		for (int col = 0; col < n; col++) {
+			for (int k = 0; k < n; k++) {
+				int index = row*n + col;
+				ResultMatrix[index] = min(ResultMatrix[index], MatrixA[row*n + k] + MatrixB[k*n + col]);
 			}
 		}
 	}
@@ -138,15 +140,15 @@ void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int matrixWi
 
 void implementAlgorithm(int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++) {
-		int matrixWidth;
+		int n;
 
 		//first number in file is matrix width
 		ifstream myfile;
 		myfile.open(argv[i]);
-		myfile >> matrixWidth;
+		myfile >> n;
 
 		//load first input matrix
-		int sizeOfMatrix = matrixWidth*matrixWidth;
+		int sizeOfMatrix = n*n;
 		int* MatrixA = (int*) malloc(sizeOfMatrix*sizeof(int));
 		int* MatrixB = (int*) malloc(sizeOfMatrix*sizeof(int));
 		int* ResultMatrix = (int*) malloc(sizeOfMatrix*sizeof(int));
@@ -162,10 +164,10 @@ void implementAlgorithm(int argc, char *argv[]) {
 		}
 
 		cout << "Matrix 1" << endl;
-		printMatrix(MatrixA, matrixWidth);
+		printMatrix(MatrixA, n);
 		
 		cout << endl << "Matrix 2" << endl;
-		printMatrix(MatrixB, matrixWidth);
+		printMatrix(MatrixB, n);
 		
 
 		//load expected ResultMatrix
@@ -174,10 +176,10 @@ void implementAlgorithm(int argc, char *argv[]) {
 			myfile >> expected[j];
 		}
 
-		int h = calculateLog(matrixWidth);
+		int h = calculateLog(n);
 
 		cout << endl << "Expected" << endl;
-		printMatrix(expected, matrixWidth);
+		printMatrix(expected, n);
 
 		int* cudaMatrixA;
 		int* cudaMatrixB;
@@ -195,91 +197,91 @@ void implementAlgorithm(int argc, char *argv[]) {
 		cudaMemcpy(cudaResultMatrix, ResultMatrix, sizeof(int)*sizeOfMatrix, cudaMemcpyHostToDevice);
 
 		//cout << endl << "ResultMatrix" << endl;
-		//printMatrix(ResultMatrix, matrixWidth);
+		//printMatrix(ResultMatrix, n);
 
 		// ALTERNATIVE KERNEL CALL
 		// for (int i = 0; i < h; i++) {
 		// 	if (i < h-1) {
-		// 		if (matrixWidth < 128) {
+		// 		if (n < 128) {
 		// 			int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
 		// 			int numberOfThreads = min(1024, sizeOfMatrix);
 		
-		// 			if (matrixWidth < 64) {
+		// 			if (n < 64) {
 		// 				int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
 		// 				cudaEventRecord(start);
 		// 				cout << "CACHING BOTH MATRICES:" << endl;
-		// 				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+		// 				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		// 			} else {
 		// 				int sharedMemorySize = sizeOfMatrix*sizeof(int);
 		// 				cudaEventRecord(start);
 		// 				cout << "CACHING FIRST MATRIX:" << endl;
-		// 				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+		// 				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		// 			}
 		
 		// 		} else {
 		// 			cout << "CACHING ROW IN MATRIX:" << endl;
-		// 			int numberOfThreads = min(matrixWidth, 1024);
+		// 			int numberOfThreads = min(n, 1024);
 		// 			int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
-		// 			int sharedMemorySize = matrixWidth*sizeof(int);
+		// 			int sharedMemorySize = n*sizeof(int);
 		// 			cudaEventRecord(start);
-		// 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+		// 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		// 		}
 		// 		for (int j = 0; j < sizeOfMatrix; j++) {
 		// 			cudaMatrixB[j] = cudaResultMatrix[j];
 		// 			cudaResultMatrix[j] = INT_MAX;
 		// 		}
 		// 	} else {
-		// 		if (matrixWidth < 128) {
+		// 		if (n < 128) {
 		// 			int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
 		// 			int numberOfThreads = min(1024, sizeOfMatrix);
 		
-		// 			if (matrixWidth < 64) {
+		// 			if (n < 64) {
 		// 				int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
 		// 				cudaEventRecord(start);
 		// 				cout << "CACHING BOTH MATRICES:" << endl;
-		// 				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+		// 				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		// 			} else {
 		// 				int sharedMemorySize = sizeOfMatrix*sizeof(int);
 		// 				cudaEventRecord(start);
 		// 				cout << "CACHING FIRST MATRIX:" << endl;
-		// 				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+		// 				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		// 			}
 		
 		// 		} else {
 		// 			cout << "CACHING ROW IN MATRIX:" << endl;
-		// 			int numberOfThreads = min(matrixWidth, 1024);
+		// 			int numberOfThreads = min(n, 1024);
 		// 			int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
-		// 			int sharedMemorySize = matrixWidth*sizeof(int);
+		// 			int sharedMemorySize = n*sizeof(int);
 		// 			cudaEventRecord(start);
-		// 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+		// 			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		// 		}
 		// 	}
 		// }
 
 		// INITIAL KERNEL
-		if (matrixWidth < 128) {
+		if (n < 128) {
 			int numberOfThreadBlocks = ceil(sizeOfMatrix/1024.0);
 			int numberOfThreads = min(1024, sizeOfMatrix);
 
-			if (matrixWidth < 64) {
+			if (n < 64) {
 				int sharedMemorySize = sizeOfMatrix*2*sizeof(int);
 				cudaEventRecord(start);
 				cout << "CACHING BOTH MATRICES:" << endl;
-				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+				min_plus_kernel_cache_both<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 			} else {
 				int sharedMemorySize = sizeOfMatrix*sizeof(int);
 				cudaEventRecord(start);
 				cout << "CACHING FIRST MATRIX:" << endl;
-				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+				min_plus_kernel_cache_first<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 			}
 
 		} else {
 			cout << "CACHING ROW IN MATRIX:" << endl;
-			int numberOfThreads = min(matrixWidth, 1024);
+			int numberOfThreads = min(n, 1024);
 			int numberOfThreadBlocks = sizeOfMatrix/numberOfThreads;
-			int sharedMemorySize = matrixWidth*sizeof(int);
+			int sharedMemorySize = n*sizeof(int);
 			cudaEventRecord(start);
-			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, matrixWidth);
+			min_plus<<<numberOfThreadBlocks, numberOfThreads, sharedMemorySize>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		}
 		
 		cudaThreadSynchronize();	
@@ -293,7 +295,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 
 
 		auto begin = chrono::high_resolution_clock::now();
-		min_plus_serial(MatrixA, MatrixB, serialResultMatrix, matrixWidth);	
+		min_plus_serial(MatrixA, MatrixB, serialResultMatrix, n);	
 		auto end = chrono::high_resolution_clock::now();
 		auto dur = end - begin;
 		auto serialTime = chrono::duration_cast<chrono::milliseconds>(dur).count();
@@ -316,7 +318,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 			cout << "Computed min-plus multiplication for " << argv[i] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
 		} else {
 			for (int k = 0; k < sizeOfMatrix; k++) {
-				if (k % matrixWidth == 0) {
+				if (k % n == 0) {
 					cout << endl;
 				}
 
