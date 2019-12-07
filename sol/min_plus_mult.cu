@@ -33,7 +33,7 @@ bool equivChecker(int *ResultMatrixMatrix, int *expectedMatrix, int matrixSize) 
 int calculateLog(int d) 
 { 
 	int x = log2(d);
-	printf("Log %d is %d", d, x);
+	// printf("Log %d is %d", d, x);
 	return x; 
 } 
 
@@ -335,6 +335,14 @@ void implementAlgorithm(int argc, char *argv[]) {
 
 
 int main(int argc, char *argv[]) {
-	implementAlgorithm(argc, argv);
+	int n;
+	ifstream myfile;
+	myfile.open(argv[i]);
+	myfile >> n;
+	int h = calculateLog(n);
+	for (int i = 0; i < h; i++) {
+		implementAlgorithm(argc, argv);
+	}
+	// implementAlgorithm(argc, argv);
 	return 0;
 }
