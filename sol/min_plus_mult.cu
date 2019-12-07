@@ -247,7 +247,7 @@ int * implementAlgorithm(int argc, char *argv[]) {
 	cudaFree(cudaResultMatrix);
 
 	if (check) {
-		cout << "Computed min-plus multiplication for " << argv[i] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
+		cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
 	} else {
 		for (int k = 0; k < matrix_size; k++) {
 			if (k % n == 0) {
@@ -257,7 +257,7 @@ int * implementAlgorithm(int argc, char *argv[]) {
 			cout << ResultMatrix[k] << " ";
 		}
 
-		cout << "Error computing min-plus for " << argv[i] << endl;
+		cout << "Error computing min-plus for " << argv[1] << endl;
 		//cout << endl << cudaGetErrorString(cudaGetLastError()) << endl;
 		//cudaError_t error = cudaGetLastError();
 	//	cout << cudaGetLastError() << endl;
