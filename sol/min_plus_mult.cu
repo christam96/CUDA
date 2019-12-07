@@ -10,7 +10,7 @@
 
 using namespace std;
 
-int* expected = (int*) malloc(matrix_size*sizeof(int));
+int* expected;
 
 void printMatrix(int *matrix, int n) {
 	for (int i = 0; i < n*n; i++) {
@@ -168,7 +168,7 @@ int * implementAlgorithm(int argc, char *argv[]) {
 	
 
 	//load expected ResultMatrix
-	// int* expected = (int*) malloc(matrix_size*sizeof(int));
+	expected = (int*) malloc(matrix_size*sizeof(int));
 	for (int j = 0; j < matrix_size; j++) {
 		myfile >> expected[j];
 	}
