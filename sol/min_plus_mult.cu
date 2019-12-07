@@ -144,7 +144,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 
 		//first number in file is matrix width
 		ifstream myfile;
-		myfile.open(argv[i]);
+		myfile.open(argv[1]);
 		myfile >> n;
 
 		//load first input matrix
