@@ -10,6 +10,8 @@
 
 using namespace std;
 
+int* expected = (int*) malloc(matrix_size*sizeof(int));
+
 void printMatrix(int *matrix, int n) {
 	for (int i = 0; i < n*n; i++) {
 		if (i % n == 0) {
@@ -166,7 +168,7 @@ int * implementAlgorithm(int argc, char *argv[]) {
 	
 
 	//load expected ResultMatrix
-	int* expected = (int*) malloc(matrix_size*sizeof(int));
+	// int* expected = (int*) malloc(matrix_size*sizeof(int));
 	for (int j = 0; j < matrix_size; j++) {
 		myfile >> expected[j];
 	}
@@ -215,6 +217,73 @@ int * implementAlgorithm(int argc, char *argv[]) {
 		min_plus<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 	}
 	
+	// cudaThreadSynchronize();	
+	// cudaEventRecord(stop);
+	// cudaEventSynchronize(stop);
+	// cudaEventSynchronize(stop);
+
+	// float milliseconds = 0;
+	// cudaEventElapsedTime(&milliseconds, start, stop);
+	// cudaMemcpy(ResultMatrix, cudaResultMatrix, sizeof(int)*matrix_size, cudaMemcpyDeviceToHost);		
+
+
+	// auto begin = chrono::high_resolution_clock::now();
+	// min_plus_serial(MatrixA, MatrixB, serialResultMatrix, n);	
+	// auto end = chrono::high_resolution_clock::now();
+	// auto dur = end - begin;
+	// auto serialTime = chrono::duration_cast<chrono::milliseconds>(dur).count();
+
+	// //validate ResultMatrix
+	// bool ifEquiv = true;
+	// for (int k = 0; k < matrix_size; k++) {
+	// 	if (expected[k] != ResultMatrix[k]) {
+	// 		ifEquiv = false;
+	// 		break;
+	// 	}
+	// }
+	// bool check = equivChecker(expected,ResultMatrix, matrix_size);
+
+	// cudaFree(cudaMatrixA);
+	// cudaFree(cudaMatrixB);
+	// cudaFree(cudaResultMatrix);
+
+	// if (check) {
+	// 	cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
+	// } else {
+	// 	for (int k = 0; k < matrix_size; k++) {
+	// 		if (k % n == 0) {
+	// 			cout << endl;
+	// 		}
+
+	// 		cout << ResultMatrix[k] << " ";
+	// 	}
+
+	// 	cout << "Error computing min-plus for " << argv[1] << endl;
+	// 	//cout << endl << cudaGetErrorString(cudaGetLastError()) << endl;
+	// 	//cudaError_t error = cudaGetLastError();
+	// //	cout << cudaGetLastError() << endl;
+	// }
+	
+	return ResultMatrix;
+}
+
+
+int main(int argc, char *argv[]) {
+	int n;
+	ifstream myfile;
+	myfile.open(argv[1]);
+	myfile >> n;
+	int matrix_size = n*n;
+	int* ResultMatrix = (int*) malloc(matrix_size*sizeof(int));	
+	int h = calculateLog(n);
+	// cudaEvent_t start, stop;
+	// cudaEventCreate(&start);
+	// cudaEventCreate(&stop);
+	for (int i = 0; i < h; i++) {
+		ResultMatrix = implementAlgorithm(argc, argv);
+	}
+	printMatrix(ResultMatrix,n);
+
 	cudaThreadSynchronize();	
 	cudaEventRecord(stop);
 	cudaEventSynchronize(stop);
@@ -261,39 +330,5 @@ int * implementAlgorithm(int argc, char *argv[]) {
 		//cudaError_t error = cudaGetLastError();
 	//	cout << cudaGetLastError() << endl;
 	}
-	
-	return ResultMatrix;
-}
-
-
-int main(int argc, char *argv[]) {
-	int n;
-	ifstream myfile;
-	myfile.open(argv[1]);
-	myfile >> n;
-	int matrix_size = n*n;
-	int* ResultMatrix = (int*) malloc(matrix_size*sizeof(int));	
-	int h = calculateLog(n);
-	// cudaEvent_t start, stop;
-	// cudaEventCreate(&start);
-	// cudaEventCreate(&stop);
-	for (int i = 0; i < h; i++) {
-		ResultMatrix = implementAlgorithm(argc, argv);
-	}
-	printMatrix(ResultMatrix,n);
-	// cudaThreadSynchronize();	
-	// cudaEventRecord(stop);
-	// cudaEventSynchronize(stop);
-	// cudaEventSynchronize(stop);
-	// float milliseconds = 0;
-	// cudaEventElapsedTime(&milliseconds, start, stop);
-	// cudaMemcpy(ResultMatrix, cudaResultMatrix, sizeof(int)*matrix_size, cudaMemcpyDeviceToHost);		
-
-
-	// auto begin = chrono::high_resolution_clock::now();
-	// min_plus_serial(MatrixA, MatrixB, serialResultMatrix, n);	
-	// auto end = chrono::high_resolution_clock::now();
-	// auto dur = end - begin;
-	// auto serialTime = chrono::duration_cast<chrono::milliseconds>(dur).count();
 	return 0;
 }
