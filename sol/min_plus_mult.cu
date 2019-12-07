@@ -10,8 +10,6 @@
 
 using namespace std;
 
-int* expected;
-
 void printMatrix(int *matrix, int n) {
 	for (int i = 0; i < n*n; i++) {
 		if (i % n == 0) {
@@ -141,57 +139,57 @@ void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 }
 
 int * implementAlgorithm(int argc, char *argv[]) {
-	int n;
-	// Note: The width of the matrix is specified in the first line of the input test file
-	ifstream myfile;
-	myfile.open(argv[1]);
-	myfile >> n;
-	int matrix_size = n*n;
-	int* ResultMatrix = (int*) malloc(matrix_size*sizeof(int));	
-	int* MatrixA = (int*) malloc(matrix_size*sizeof(int));
-	int* MatrixB = (int*) malloc(matrix_size*sizeof(int));
-	int* serialResultMatrix = (int*) malloc(matrix_size*sizeof(int));
-	for (int j = 0; j < matrix_size; j++) {
-		myfile >> MatrixA[j];
-		ResultMatrix[j] = INT_MAX;
-		serialResultMatrix[j] = INT_MAX;
-	}	
-	for (int j = 0; j < matrix_size; j++) {
-		myfile >> MatrixB[j];
-	}
+	// int n;
+	// // Note: The width of the matrix is specified in the first line of the input test file
+	// ifstream myfile;
+	// myfile.open(argv[1]);
+	// myfile >> n;
+	// int matrix_size = n*n;
+	// int* ResultMatrix = (int*) malloc(matrix_size*sizeof(int));	
+	// int* MatrixA = (int*) malloc(matrix_size*sizeof(int));
+	// int* MatrixB = (int*) malloc(matrix_size*sizeof(int));
+	// int* serialResultMatrix = (int*) malloc(matrix_size*sizeof(int));
+	// for (int j = 0; j < matrix_size; j++) {
+	// 	myfile >> MatrixA[j];
+	// 	ResultMatrix[j] = INT_MAX;
+	// 	serialResultMatrix[j] = INT_MAX;
+	// }	
+	// for (int j = 0; j < matrix_size; j++) {
+	// 	myfile >> MatrixB[j];
+	// }
 
-	// cout << "Matrix 1" << endl;
-	// printMatrix(MatrixA, n);
+	// // cout << "Matrix 1" << endl;
+	// // printMatrix(MatrixA, n);
 	
-	// cout << endl << "Matrix 2" << endl;
-	// printMatrix(MatrixB, n);
+	// // cout << endl << "Matrix 2" << endl;
+	// // printMatrix(MatrixB, n);
 	
 
-	//load expected ResultMatrix
-	expected = (int*) malloc(matrix_size*sizeof(int));
-	for (int j = 0; j < matrix_size; j++) {
-		myfile >> expected[j];
-	}
+	// //load expected ResultMatrix
+	// expected = (int*) malloc(matrix_size*sizeof(int));
+	// for (int j = 0; j < matrix_size; j++) {
+	// 	myfile >> expected[j];
+	// }
 
-	int h = calculateLog(n);
+	// int h = calculateLog(n);
 
 	// cout << endl << "Expected" << endl;
 	// printMatrix(expected, n);
 
-	int* cudaMatrixA;
-	int* cudaMatrixB;
-	int* cudaResultMatrix;
-	cudaMalloc((void **) &cudaMatrixA, sizeof(int) * matrix_size);
-	cudaMalloc((void **) &cudaMatrixB, sizeof(int) * matrix_size);
-	cudaMalloc((void **) &cudaResultMatrix, sizeof(int) * matrix_size);
+	// int* cudaMatrixA;
+	// int* cudaMatrixB;
+	// int* cudaResultMatrix;
+	// cudaMalloc((void **) &cudaMatrixA, sizeof(int) * matrix_size);
+	// cudaMalloc((void **) &cudaMatrixB, sizeof(int) * matrix_size);
+	// cudaMalloc((void **) &cudaResultMatrix, sizeof(int) * matrix_size);
 
-	cudaEvent_t start, stop;
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
+	// cudaEvent_t start, stop;
+	// cudaEventCreate(&start);
+	// cudaEventCreate(&stop);
 	
-	cudaMemcpy(cudaMatrixA, MatrixA, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
-	cudaMemcpy(cudaMatrixB, MatrixB, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
-	cudaMemcpy(cudaResultMatrix, ResultMatrix, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
+	// cudaMemcpy(cudaMatrixA, MatrixA, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
+	// cudaMemcpy(cudaMatrixB, MatrixB, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
+	// cudaMemcpy(cudaResultMatrix, ResultMatrix, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
 
 	//cout << endl << "ResultMatrix" << endl;
 	//printMatrix(ResultMatrix, n);
@@ -270,11 +268,53 @@ int * implementAlgorithm(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
 	int n;
+	// Note: The width of the matrix is specified in the first line of the input test file
 	ifstream myfile;
 	myfile.open(argv[1]);
 	myfile >> n;
 	int matrix_size = n*n;
 	int* ResultMatrix = (int*) malloc(matrix_size*sizeof(int));	
+	int* MatrixA = (int*) malloc(matrix_size*sizeof(int));
+	int* MatrixB = (int*) malloc(matrix_size*sizeof(int));
+	int* serialResultMatrix = (int*) malloc(matrix_size*sizeof(int));
+	for (int j = 0; j < matrix_size; j++) {
+		myfile >> MatrixA[j];
+		ResultMatrix[j] = INT_MAX;
+		serialResultMatrix[j] = INT_MAX;
+	}	
+	for (int j = 0; j < matrix_size; j++) {
+		myfile >> MatrixB[j];
+	}
+
+	// cout << "Matrix 1" << endl;
+	// printMatrix(MatrixA, n);
+	
+	// cout << endl << "Matrix 2" << endl;
+	// printMatrix(MatrixB, n);
+	
+
+	//load expected ResultMatrix
+	expected = (int*) malloc(matrix_size*sizeof(int));
+	for (int j = 0; j < matrix_size; j++) {
+		myfile >> expected[j];
+	}
+
+	int* cudaMatrixA;
+	int* cudaMatrixB;
+	int* cudaResultMatrix;
+	cudaMalloc((void **) &cudaMatrixA, sizeof(int) * matrix_size);
+	cudaMalloc((void **) &cudaMatrixB, sizeof(int) * matrix_size);
+	cudaMalloc((void **) &cudaResultMatrix, sizeof(int) * matrix_size);
+
+	cudaEvent_t start, stop;
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	
+	cudaMemcpy(cudaMatrixA, MatrixA, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
+	cudaMemcpy(cudaMatrixB, MatrixB, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
+	cudaMemcpy(cudaResultMatrix, ResultMatrix, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
+
+
 	int h = calculateLog(n);
 	// cudaEvent_t start, stop;
 	// cudaEventCreate(&start);
