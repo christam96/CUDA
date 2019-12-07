@@ -35,7 +35,23 @@ int calculateLog(int d)
 	int x = log2(d);
 	// printf("Log %d is %d", d, x);
 	return x; 
-} 
+}
+
+int * min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+	int numberOfEntries = n * n;
+	for (int i = 0; i < numberOfEntries; i++) {
+		ResultMatrix[i] = INT_MAX;
+	}
+
+	for (int row = 0; row < n; row++) {
+		for (int col = 0; col < n; col++) {
+			for (int k = 0; k < n; k++) {
+				int index = row*n + col;
+				ResultMatrix[index] = min(ResultMatrix[index], MatrixA[row*n + k] + MatrixB[k*n + col]);
+			}
+		}
+	}
+}
 
 __global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -77,22 +93,16 @@ __global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *Resu
 	for (int k = 0; k < n; k++) {
 		int firstNum = sharedData[row*n + k];
 		int secondNum = sharedData[k*n + col + offset];
-		//int firstNum = sharedData[k];
-		//int secondNum = MatrixB[k*n + col];
-			
+		//int firstNum = sharedData[k];			
 		resVal = min(resVal, firstNum + secondNum);
 	}
-	
 	ResultMatrix[index] = resVal;
 }
 
 __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int rowNumber = blockIdx.x/(n/blockDim.x);
-	int firstIndexInRow = rowNumber*n;
-	
+	int firstIndexInRow = rowNumber*n;	
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-	
 	ResultMatrix[index] = 1;
 
 	extern __shared__ int sharedData[];
@@ -108,7 +118,6 @@ __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	__syncthreads();
 
 	int resVal = INT_MAX;
-
 	int col = index % n;
 
 	//each thread computes the correct ResultMatrix for a given index in the 2D array
@@ -120,22 +129,6 @@ __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	}
 
 	ResultMatrix[index] = resVal;
-}
-
-int * min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
-	int numberOfEntries = n * n;
-	for (int i = 0; i < numberOfEntries; i++) {
-		ResultMatrix[i] = INT_MAX;
-	}
-
-	for (int row = 0; row < n; row++) {
-		for (int col = 0; col < n; col++) {
-			for (int k = 0; k < n; k++) {
-				int index = row*n + col;
-				ResultMatrix[index] = min(ResultMatrix[index], MatrixA[row*n + k] + MatrixB[k*n + col]);
-			}
-		}
-	}
 }
 
 std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
@@ -157,24 +150,11 @@ std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 	for (int j = 0; j < matrix_size; j++) {
 		myfile >> MatrixB[j];
 	}
-
-	// cout << "Matrix 1" << endl;
-	// printMatrix(MatrixA, n);
-	
-	// cout << endl << "Matrix 2" << endl;
-	// printMatrix(MatrixB, n);
-	
-
-	//load expected ResultMatrix
 	int* expected = (int*) malloc(matrix_size*sizeof(int));
 	for (int j = 0; j < matrix_size; j++) {
 		myfile >> expected[j];
 	}
-
-	int h = calculateLog(n);
-
-	// cout << endl << "Expected" << endl;
-	// printMatrix(expected, n);
+	// int h = calculateLog(n);
 
 	int* cudaMatrixA;
 	int* cudaMatrixB;
