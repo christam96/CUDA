@@ -181,7 +181,9 @@ void implementAlgorithm(int argc, char *argv[]) {
 		// cout << endl << "Expected" << endl;
 		// printMatrix(expected, n);
 
-		int* cudaMatrixA, cudaMatrixB, cudaResultMatrix;
+		int* cudaMatrixA;
+		int* cudaMatrixB;
+		int* cudaResultMatrix;
 		cudaMalloc((void **) &cudaMatrixA, sizeof(int) * matrix_size);
 		cudaMalloc((void **) &cudaMatrixB, sizeof(int) * matrix_size);
 		cudaMalloc((void **) &cudaResultMatrix, sizeof(int) * matrix_size);
