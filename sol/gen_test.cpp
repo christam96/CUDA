@@ -91,8 +91,8 @@ int main(int argc, char *argv[])
 
 	int h = calculateLog(matrixSize);
 
-	cout<<"Input Matrix";	
-	print(matrix1, matrixSize);
+	// cout<<"Input Matrix";	
+	// print(matrix1, matrixSize);
 	
 
 	int* matrix2 = (int*) malloc(sizeOfMatrix*sizeof(int));
@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
 		matrix2[i] = matrix1[i];
 	}
 
-	cout<<endl<<"Matrix2:";
-	print(matrix2, matrixSize);
+	// cout<<endl<<"Matrix2:";
+	// print(matrix2, matrixSize);
 
 	// for (int i = 0; i < h; i++) {
 	// 	if (i < h-1) {
@@ -123,8 +123,8 @@ int main(int argc, char *argv[])
 	
 	min_plus_serial(matrix1,matrix2,matrix3,matrixSize);
 
-	cout<<endl<<"Final Result: "<<endl;
-	print(matrix3,matrixSize);
+	// cout<<endl<<"Final Result: "<<endl;
+	// print(matrix3,matrixSize);
 
 	ofstream myfile ("example.txt");
 	if (myfile.is_open()) {
