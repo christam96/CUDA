@@ -139,6 +139,7 @@ void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 }
 
 int * implementAlgorithm(int argc, char *argv[]) {
+	int* ResultMatrix = (int*) malloc(matrix_size*sizeof(int));
 	for (int i = 1; i < argc; i++) {
 		int n;
 
@@ -151,7 +152,6 @@ int * implementAlgorithm(int argc, char *argv[]) {
 		int matrix_size = n*n;
 		int* MatrixA = (int*) malloc(matrix_size*sizeof(int));
 		int* MatrixB = (int*) malloc(matrix_size*sizeof(int));
-		int* ResultMatrix = (int*) malloc(matrix_size*sizeof(int));
 		int* serialResultMatrix = (int*) malloc(matrix_size*sizeof(int));
 		for (int j = 0; j < matrix_size; j++) {
 			myfile >> MatrixA[j];
@@ -266,8 +266,8 @@ int * implementAlgorithm(int argc, char *argv[]) {
 			//cudaError_t error = cudaGetLastError();
 		//	cout << cudaGetLastError() << endl;
 		}
-	return ResultMatrix;
 	}
+	return ResultMatrix;
 }
 
 
