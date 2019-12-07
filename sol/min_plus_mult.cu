@@ -163,11 +163,11 @@ void implementAlgorithm(int argc, char *argv[]) {
 			myfile >> MatrixB[j];
 		}
 
-		cout << "Matrix 1" << endl;
-		printMatrix(MatrixA, n);
+		// cout << "Matrix 1" << endl;
+		// printMatrix(MatrixA, n);
 		
-		cout << endl << "Matrix 2" << endl;
-		printMatrix(MatrixB, n);
+		// cout << endl << "Matrix 2" << endl;
+		// printMatrix(MatrixB, n);
 		
 
 		//load expected ResultMatrix
@@ -178,12 +178,10 @@ void implementAlgorithm(int argc, char *argv[]) {
 
 		int h = calculateLog(n);
 
-		cout << endl << "Expected" << endl;
-		printMatrix(expected, n);
+		// cout << endl << "Expected" << endl;
+		// printMatrix(expected, n);
 
-		int* cudaMatrixA;
-		int* cudaMatrixB;
-		int* cudaResultMatrix;
+		int* cudaMatrixA, cudaMatrixB, cudaResultMatrix;
 		cudaMalloc((void **) &cudaMatrixA, sizeof(int) * matrix_size);
 		cudaMalloc((void **) &cudaMatrixB, sizeof(int) * matrix_size);
 		cudaMalloc((void **) &cudaResultMatrix, sizeof(int) * matrix_size);
