@@ -256,7 +256,6 @@ std::pair<int,int> implementAlgorithm(int argc, char *argv[]) {
 
 			cout << ResultMatrix[k] << " ";
 		}
-		return 0;
 		cout << "Error computing min-plus for " << argv[1] << endl;
 		//cout << endl << cudaGetErrorString(cudaGetLastError()) << endl;
 		//cudaError_t error = cudaGetLastError();
