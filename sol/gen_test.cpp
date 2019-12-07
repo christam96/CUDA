@@ -39,8 +39,8 @@ int calculateLog(int d)
 	int result;
 	int x = log2(d);
 	//result = round(x);
-	printf("Log %d is %d", d, x);
-	cout<<endl;
+	// printf("Log %d is %d", d, x);
+	// cout<<endl;
 	return x; 
 } 
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	int sizeOfMatrix = matrixSize*matrixSize;
         int* matrix1 = (int*) malloc(sizeOfMatrix*sizeof(int));
 	
-	cout<<"check"<<endl;
+	// cout<<"check"<<endl;
 
 	for (int j = 0; j < sizeOfMatrix; j++) {
                         /* generate secret number between 1 and 10: */
