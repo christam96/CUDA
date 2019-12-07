@@ -122,7 +122,7 @@ __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	ResultMatrix[index] = resVal;
 }
 
-void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+std::pair<int,int> min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int numberOfEntries = n * n;
 	for (int i = 0; i < numberOfEntries; i++) {
 		ResultMatrix[i] = INT_MAX;
@@ -247,7 +247,7 @@ int implementAlgorithm(int argc, char *argv[]) {
 
 	if (check) {
 		// cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
-		return serialTime;
+		return std::make_pair(milliseconds,serialTime);
 	} else {
 		for (int k = 0; k < matrix_size; k++) {
 			if (k % n == 0) {
@@ -272,7 +272,9 @@ int main(int argc, char *argv[]) {
 	myfile >> n;
 	int h = calculateLog(n);
 	for (int i = 0; i < h; i++) {
-		implementAlgorithm(argc, argv);
+		pair<int,int> implementAlgorithm(argc, argv);
 	}
+	cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << pair.first << " ms in parallel and " << pair.second << " milliseconds in serial." << endl;
+
 	return 0;
 }
