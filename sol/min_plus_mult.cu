@@ -138,7 +138,7 @@ int * min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	}
 }
 
-std::pair<int,int> implementAlgorithm(int argc, char *argv[]) {
+std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 	int n;
 	// Note: The width of the matrix is specified in the first line of the input test file
 	ifstream myfile;
