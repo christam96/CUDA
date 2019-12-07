@@ -37,7 +37,7 @@ int calculateLog(int d)
 	return x; 
 }
 
-int * kernel3_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+int * kernel_1_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int numberOfEntries = n * n;
 	for (int i = 0; i < numberOfEntries; i++) {
 		ResultMatrix[i] = INT_MAX;
@@ -54,52 +54,6 @@ int * kernel3_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 }
 
 __global__ void kernel_1(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-	extern __shared__ int sharedData[];
-	sharedData[index] = MatrixA[index];
-	__syncthreads();
-
-	int resVal = INT_MAX;
-
-	int collumn = index % n;
-	int row = index/n;
-
-	for (int k = 0; k < n; k++) {
-		int firstNum = sharedData[row*n + k];
-		int secondNum = MatrixB[k*n + collumn];
-			
-		resVal = min(resVal, firstNum + secondNum);
-	}
-	
-	ResultMatrix[index] = resVal;
-}
-
-__global__ void kernel_2(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	int offset = n * n;
-
-	extern __shared__ int sharedData[];
-	sharedData[index] = MatrixA[index];
-	sharedData[index + offset] = MatrixB[index];
-	__syncthreads();
-
-	int resVal = INT_MAX;
-
-	int collumn = index % n;
-	int row = index/n;
-	
-	//each thread computes the correct ResultMatrix for a given index in the 2D array
-	for (int k = 0; k < n; k++) {
-		int firstNum = sharedData[row*n + k];
-		int secondNum = sharedData[k*n + collumn + offset];
-		//int firstNum = sharedData[k];			
-		resVal = min(resVal, firstNum + secondNum);
-	}
-	ResultMatrix[index] = resVal;
-}
-
-__global__ void kernel3(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int rowNumber = blockIdx.x/(n/blockDim.x);
 	int firstIndexInRow = rowNumber*n;	
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -128,6 +82,52 @@ __global__ void kernel3(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 		resVal = min(resVal, firstNum + secondNum);
 	}
 
+	ResultMatrix[index] = resVal;
+}
+
+__global__ void kernel_2(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int offset = n * n;
+
+	extern __shared__ int sharedData[];
+	sharedData[index] = MatrixA[index];
+	sharedData[index + offset] = MatrixB[index];
+	__syncthreads();
+
+	int resVal = INT_MAX;
+
+	int collumn = index % n;
+	int row = index/n;
+	
+	//each thread computes the correct ResultMatrix for a given index in the 2D array
+	for (int k = 0; k < n; k++) {
+		int firstNum = sharedData[row*n + k];
+		int secondNum = sharedData[k*n + collumn + offset];
+		//int firstNum = sharedData[k];			
+		resVal = min(resVal, firstNum + secondNum);
+	}
+	ResultMatrix[index] = resVal;
+}
+
+__global__ void kernel_3(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	extern __shared__ int sharedData[];
+	sharedData[index] = MatrixA[index];
+	__syncthreads();
+
+	int resVal = INT_MAX;
+
+	int collumn = index % n;
+	int row = index/n;
+
+	for (int k = 0; k < n; k++) {
+		int firstNum = sharedData[row*n + k];
+		int secondNum = MatrixB[k*n + collumn];
+			
+		resVal = min(resVal, firstNum + secondNum);
+	}
+	
 	ResultMatrix[index] = resVal;
 }
 
@@ -185,14 +185,14 @@ std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 		} else {
 			int size_shared_mem = matrix_size*sizeof(int);
 			cudaEventRecord(start);
-			kernel_1<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+			kernel_3<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		}
 	} else {
 		int thread_num = min(n, 1024);
 		int thread_block_numb = matrix_size/thread_num;
 		int size_shared_mem = n*sizeof(int);
 		cudaEventRecord(start);
-		kernel3<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+		kernel_1<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 	}
 	
 	cudaThreadSynchronize();	
@@ -206,19 +206,11 @@ std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 
 
 	auto begin = chrono::high_resolution_clock::now();
-	kernel3_serial(MatrixA, MatrixB, serialResultMatrix, n);	
+	kernel_1_serial(MatrixA, MatrixB, serialResultMatrix, n);	
 	auto end = chrono::high_resolution_clock::now();
 	auto dur = end - begin;
 	auto serialTime = chrono::duration_cast<chrono::milliseconds>(dur).count();
 
-	// //validate ResultMatrix
-	// bool ifEquiv = true;
-	// for (int k = 0; k < matrix_size; k++) {
-	// 	if (expected[k] != ResultMatrix[k]) {
-	// 		ifEquiv = false;
-	// 		break;
-	// 	}
-	// }
 	bool check = equivChecker(expected,ResultMatrix, matrix_size);
 
 	cudaFree(cudaMatrixA);
