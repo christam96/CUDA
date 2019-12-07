@@ -122,7 +122,7 @@ __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	ResultMatrix[index] = resVal;
 }
 
-std::pair<int,int> min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+int * min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int numberOfEntries = n * n;
 	for (int i = 0; i < numberOfEntries; i++) {
 		ResultMatrix[i] = INT_MAX;
@@ -138,7 +138,7 @@ std::pair<int,int> min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix
 	}
 }
 
-int implementAlgorithm(int argc, char *argv[]) {
+std::pair<int,int> implementAlgorithm(int argc, char *argv[]) {
 	int n;
 	// Note: The width of the matrix is specified in the first line of the input test file
 	ifstream myfile;
