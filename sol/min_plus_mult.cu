@@ -138,7 +138,7 @@ void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	}
 }
 
-int * implementAlgorithm(int argc, char *argv[]) {
+int implementAlgorithm(int argc, char *argv[]) {
 	int n;
 	// Note: The width of the matrix is specified in the first line of the input test file
 	ifstream myfile;
@@ -246,7 +246,8 @@ int * implementAlgorithm(int argc, char *argv[]) {
 	cudaFree(cudaResultMatrix);
 
 	if (check) {
-		cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
+		// cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
+		return serialTime;
 	} else {
 		for (int k = 0; k < matrix_size; k++) {
 			if (k % n == 0) {
