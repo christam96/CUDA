@@ -138,7 +138,7 @@ void min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	}
 }
 
-void implementAlgorithm(int argc, char *argv[]) {
+int * implementAlgorithm(int argc, char *argv[]) {
 	for (int i = 1; i < argc; i++) {
 		int n;
 
@@ -266,6 +266,7 @@ void implementAlgorithm(int argc, char *argv[]) {
 			//cudaError_t error = cudaGetLastError();
 		//	cout << cudaGetLastError() << endl;
 		}
+	return ResultMatrix;
 	}
 }
 
