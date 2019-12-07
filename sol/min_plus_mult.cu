@@ -44,10 +44,10 @@ int * min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	}
 
 	for (int row = 0; row < n; row++) {
-		for (int col = 0; col < n; col++) {
+		for (int collumn = 0; collumn < n; collumn++) {
 			for (int k = 0; k < n; k++) {
-				int index = row*n + col;
-				ResultMatrix[index] = min(ResultMatrix[index], MatrixA[row*n + k] + MatrixB[k*n + col]);
+				int index = row*n + collumn;
+				ResultMatrix[index] = min(ResultMatrix[index], MatrixA[row*n + k] + MatrixB[k*n + collumn]);
 			}
 		}
 	}
@@ -62,12 +62,12 @@ __global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *Res
 
 	int resVal = INT_MAX;
 
-	int col = index % n;
+	int collumn = index % n;
 	int row = index/n;
 
 	for (int k = 0; k < n; k++) {
 		int firstNum = sharedData[row*n + k];
-		int secondNum = MatrixB[k*n + col];
+		int secondNum = MatrixB[k*n + collumn];
 			
 		resVal = min(resVal, firstNum + secondNum);
 	}
@@ -86,13 +86,13 @@ __global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *Resu
 
 	int resVal = INT_MAX;
 
-	int col = index % n;
+	int collumn = index % n;
 	int row = index/n;
 	
 	//each thread computes the correct ResultMatrix for a given index in the 2D array
 	for (int k = 0; k < n; k++) {
 		int firstNum = sharedData[row*n + k];
-		int secondNum = sharedData[k*n + col + offset];
+		int secondNum = sharedData[k*n + collumn + offset];
 		//int firstNum = sharedData[k];			
 		resVal = min(resVal, firstNum + secondNum);
 	}
@@ -118,12 +118,12 @@ __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	__syncthreads();
 
 	int resVal = INT_MAX;
-	int col = index % n;
+	int collumn = index % n;
 
 	//each thread computes the correct ResultMatrix for a given index in the 2D array
 	for (int k = 0; k < n; k++) {
 		int firstNum = sharedData[k];
-		int secondNum = MatrixB[k*n + col];
+		int secondNum = MatrixB[k*n + collumn];
 		
 		resVal = min(resVal, firstNum + secondNum);
 	}
