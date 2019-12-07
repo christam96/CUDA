@@ -37,7 +37,7 @@ int calculateLog(int d)
 	return x; 
 }
 
-int * min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+int * kernel3_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int numberOfEntries = n * n;
 	for (int i = 0; i < numberOfEntries; i++) {
 		ResultMatrix[i] = INT_MAX;
@@ -53,7 +53,7 @@ int * min_plus_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	}
 }
 
-__global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+__global__ void kernel_1(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	extern __shared__ int sharedData[];
@@ -75,7 +75,7 @@ __global__ void min_plus_kernel_cache_first(int *MatrixA, int *MatrixB, int *Res
 	ResultMatrix[index] = resVal;
 }
 
-__global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+__global__ void kernel_2(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int offset = n * n;
 
@@ -99,7 +99,7 @@ __global__ void min_plus_kernel_cache_both(int *MatrixA, int *MatrixB, int *Resu
 	ResultMatrix[index] = resVal;
 }
 
-__global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+__global__ void kernel3(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int rowNumber = blockIdx.x/(n/blockDim.x);
 	int firstIndexInRow = rowNumber*n;	
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -181,18 +181,18 @@ std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 		if (n < 64) {
 			int size_shared_mem = matrix_size*2*sizeof(int);
 			cudaEventRecord(start);
-			min_plus_kernel_cache_both<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+			kernel_2<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		} else {
 			int size_shared_mem = matrix_size*sizeof(int);
 			cudaEventRecord(start);
-			min_plus_kernel_cache_first<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+			kernel_1<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 		}
 	} else {
 		int thread_num = min(n, 1024);
 		int thread_block_numb = matrix_size/thread_num;
 		int size_shared_mem = n*sizeof(int);
 		cudaEventRecord(start);
-		min_plus<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+		kernel3<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
 	}
 	
 	cudaThreadSynchronize();	
@@ -206,7 +206,7 @@ std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 
 
 	auto begin = chrono::high_resolution_clock::now();
-	min_plus_serial(MatrixA, MatrixB, serialResultMatrix, n);	
+	kernel3_serial(MatrixA, MatrixB, serialResultMatrix, n);	
 	auto end = chrono::high_resolution_clock::now();
 	auto dur = end - begin;
 	auto serialTime = chrono::duration_cast<chrono::milliseconds>(dur).count();
