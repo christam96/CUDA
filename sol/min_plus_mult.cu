@@ -183,9 +183,9 @@ int * implementAlgorithm(int argc, char *argv[]) {
 	cudaMalloc((void **) &cudaMatrixB, sizeof(int) * matrix_size);
 	cudaMalloc((void **) &cudaResultMatrix, sizeof(int) * matrix_size);
 
-	// cudaEvent_t start, stop;
-	// cudaEventCreate(&start);
-	// cudaEventCreate(&stop);
+	cudaEvent_t start, stop;
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
 	
 	cudaMemcpy(cudaMatrixA, MatrixA, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
 	cudaMemcpy(cudaMatrixB, MatrixB, sizeof(int)*matrix_size, cudaMemcpyHostToDevice);
