@@ -270,8 +270,9 @@ int main(int argc, char *argv[]) {
 	myfile.open(argv[1]);
 	myfile >> n;
 	int h = calculateLog(n);
+	pair<int, int> p;
 	for (int i = 0; i < h; i++) {
-		pair<int, int> p = implementAlgorithm(argc, argv);
+		p = implementAlgorithm(argc, argv);
 	}
 	cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << p.first << " ms in parallel and " << p.second << " milliseconds in serial." << endl;
 
