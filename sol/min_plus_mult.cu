@@ -270,7 +270,7 @@ int main(int argc, char *argv[]) {
 	myfile.open(argv[1]);
 	myfile >> n;
 	int h = calculateLog(n);
-	pair<int, int> p;
+	pair<float, float> p;
 	for (int i = 0; i < h; i++) {
 		p = implementAlgorithm(argc, argv);
 	}
