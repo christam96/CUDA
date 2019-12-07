@@ -96,12 +96,12 @@ __global__ void min_plus(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	ResultMatrix[index] = 1;
 
 	extern __shared__ int sharedData[];
-	int numberOfIndicesToLoad = n/blockDim.x;
+	int numIndicesLoad = n/blockDim.x;
 	if (n % blockDim.x > threadIdx.x) {
-		numberOfIndicesToLoad++;
+		numIndicesLoad++;
 	}
 
-	for (int i = 0; i < numberOfIndicesToLoad; i++) {
+	for (int i = 0; i < numIndicesLoad; i++) {
 		sharedData[threadIdx.x + i*1024] = MatrixA[firstIndexInRow + threadIdx.x + 1024*i];
 	}
 
@@ -246,20 +246,9 @@ std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 	cudaFree(cudaResultMatrix);
 
 	if (check) {
-		// cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << milliseconds << " ms in parallel and " << serialTime << " milliseconds in serial." << endl;
 		return std::make_pair(milliseconds,serialTime);
 	} else {
-		for (int k = 0; k < matrix_size; k++) {
-			if (k % n == 0) {
-				cout << endl;
-			}
-
-			cout << ResultMatrix[k] << " ";
-		}
-		cout << "Error computing min-plus for " << argv[1] << endl;
-		//cout << endl << cudaGetErrorString(cudaGetLastError()) << endl;
-		//cudaError_t error = cudaGetLastError();
-	//	cout << cudaGetLastError() << endl;
+		cout << "Result matrix does not equal the expected matrix given in the text file for " << argv[1] << endl;
 	}
 }
 
@@ -274,9 +263,7 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < h; i++) {
 		p = implementAlgorithm(argc, argv);
 	}
-	if (p.first != NULL && p.second != NULL) {
-		cout << "Computed min-plus multiplication for " << argv[1] << " correctly in " << p.first << " ms in parallel and " << p.second << " milliseconds in serial." << endl;
-	}
+	cout << "Correct min-plus multiplication result for " << argv[1] << ", computed in " << p.first << " ms in parallel and " << p.second << " milliseconds in serial." << endl;
 
 	return 0;
 }
