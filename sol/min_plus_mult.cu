@@ -66,7 +66,7 @@ __global__ void kernel_1(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	}
 
 	for (int i = 0; i < numIndicesLoad; i++) {
-		sharedData[threadIdx.x + i*1024] = MatrixA[firstIndexInRow + threadIdx.x + 1024*i];
+		sharedData[threadIdx.x + i] = MatrixA[firstIndexInRow + threadIdx.x + 1024*i];
 	}
 
 	__syncthreads();
