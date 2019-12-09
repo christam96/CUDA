@@ -85,51 +85,51 @@ __global__ void kernel_1(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	ResultMatrix[index] = resVal;
 }
 
-__global__ void kernel_2(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	int offset = n * n;
+// __global__ void kernel_2(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+// 	int index = blockIdx.x * blockDim.x + threadIdx.x;
+// 	int offset = n * n;
 
-	extern __shared__ int sharedData[];
-	sharedData[index] = MatrixA[index];
-	sharedData[index + offset] = MatrixB[index];
-	__syncthreads();
+// 	extern __shared__ int sharedData[];
+// 	sharedData[index] = MatrixA[index];
+// 	sharedData[index + offset] = MatrixB[index];
+// 	__syncthreads();
 
-	int resVal = INT_MAX;
+// 	int resVal = INT_MAX;
 
-	int collumn = index % n;
-	int row = index/n;
+// 	int collumn = index % n;
+// 	int row = index/n;
 	
-	//each thread computes the correct ResultMatrix for a given index in the 2D array
-	for (int k = 0; k < n; k++) {
-		int firstNum = sharedData[row*n + k];
-		int secondNum = sharedData[k*n + collumn + offset];
-		//int firstNum = sharedData[k];			
-		resVal = min(resVal, firstNum + secondNum);
-	}
-	ResultMatrix[index] = resVal;
-}
+// 	//each thread computes the correct ResultMatrix for a given index in the 2D array
+// 	for (int k = 0; k < n; k++) {
+// 		int firstNum = sharedData[row*n + k];
+// 		int secondNum = sharedData[k*n + collumn + offset];
+// 		//int firstNum = sharedData[k];			
+// 		resVal = min(resVal, firstNum + secondNum);
+// 	}
+// 	ResultMatrix[index] = resVal;
+// }
 
-__global__ void kernel_3(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
+// __global__ void kernel_3(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+// 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	extern __shared__ int sharedData[];
-	sharedData[index] = MatrixA[index];
-	__syncthreads();
+// 	extern __shared__ int sharedData[];
+// 	sharedData[index] = MatrixA[index];
+// 	__syncthreads();
 
-	int resVal = INT_MAX;
+// 	int resVal = INT_MAX;
 
-	int collumn = index % n;
-	int row = index/n;
+// 	int collumn = index % n;
+// 	int row = index/n;
 
-	for (int k = 0; k < n; k++) {
-		int firstNum = sharedData[row*n + k];
-		int secondNum = MatrixB[k*n + collumn];
+// 	for (int k = 0; k < n; k++) {
+// 		int firstNum = sharedData[row*n + k];
+// 		int secondNum = MatrixB[k*n + collumn];
 			
-		resVal = min(resVal, firstNum + secondNum);
-	}
+// 		resVal = min(resVal, firstNum + secondNum);
+// 	}
 	
-	ResultMatrix[index] = resVal;
-}
+// 	ResultMatrix[index] = resVal;
+// }
 
 std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 	int n;
@@ -174,26 +174,34 @@ std::pair<float,float> implementAlgorithm(int argc, char *argv[]) {
 	//cout << endl << "ResultMatrix" << endl;
 	//printMatrix(ResultMatrix, n);
 
-	if (n < 32) {
-		int thread_block_numb = ceil(matrix_size/1024.0);
-		int thread_num = min(1024, matrix_size);
+	// if (n < 32) {
+	// 	int thread_block_numb = ceil(matrix_size/1024.0);
+	// 	int thread_num = min(1024, matrix_size);
 
-		if (n < 64) {
-			int size_shared_mem = matrix_size*2*sizeof(int);
-			cudaEventRecord(start);
-			kernel_2<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
-		} else {
-			int size_shared_mem = matrix_size*sizeof(int);
-			cudaEventRecord(start);
-			kernel_3<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
-		}
-	} else {
-		int thread_num = min(n, 1024);
-		int thread_block_numb = matrix_size/thread_num;
-		int size_shared_mem = n*sizeof(int);
-		cudaEventRecord(start);
-		kernel_1<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
-	}
+	// 	if (n < 64) {
+	// 		int size_shared_mem = matrix_size*2*sizeof(int);
+	// 		cudaEventRecord(start);
+	// 		kernel_2<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+	// 	} else {
+	// 		int size_shared_mem = matrix_size*sizeof(int);
+	// 		cudaEventRecord(start);
+	// 		kernel_3<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+	// 	}
+	// } else {
+	// 	int thread_num = min(n, 1024);
+	// 	int thread_block_numb = matrix_size/thread_num;
+	// 	int size_shared_mem = n*sizeof(int);
+	// 	cudaEventRecord(start);
+	// 	kernel_1<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+	// }
+
+
+	int thread_num = min(n, 1024);
+	int thread_block_numb = matrix_size/thread_num;
+	int size_shared_mem = n*sizeof(int);
+	cudaEventRecord(start);
+	kernel_1<<<thread_block_numb, thread_num, size_shared_mem>>>(cudaMatrixA, cudaMatrixB, cudaResultMatrix, n);
+
 	
 	cudaThreadSynchronize();	
 	cudaEventRecord(stop);
