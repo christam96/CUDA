@@ -37,7 +37,7 @@ int calculateLog(int d)
 	return x; 
 }
 
-int * kernel_1_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
+int * naive_serial(int *MatrixA, int *MatrixB, int *ResultMatrix, int n) {
 	int numberOfEntries = n * n;
 	for (int i = 0; i < numberOfEntries; i++) {
 		ResultMatrix[i] = INT_MAX;
